@@ -350,7 +350,7 @@ def f_test(first_row, second_row):
 def compare_by_component(df, component, n_components, model_type, ax_indices, ax_titles, rows=1, cols=1,
                          labels=None, maxiter=5000, maxfun=5000, method='nm', save_file_to='comparison.pdf'):
     df_results = pd.DataFrame(
-        columns=['month_year', 'model_type', 'n_components', 'amplitude', 'mesor', 'peaks', 'heights', 'p', 'RSS',
+        columns=['component', 'model_type', 'n_components', 'amplitude', 'mesor', 'peaks', 'heights', 'p', 'RSS',
                  'AIC', 'BIC',
                  'log_likelihood', 'logs', 'mean(est)', 'Y(est)'])
 
@@ -374,7 +374,7 @@ def compare_by_component(df, component, n_components, model_type, ax_indices, ax
                                plot_measurements_with_color=colors[i], fit_label=name, raw_label='raw data\n- ' + name)
 
         df_results = df_results.append(stats, ignore_index=True)
-        df_results.loc[df_results.index[-1], 'month_year'] = name
+        df_results.loc[df_results.index[-1], 'component'] = name
         i = i + 1
 
     ax_list = fig.axes
