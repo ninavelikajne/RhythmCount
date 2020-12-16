@@ -213,90 +213,54 @@ def calculate_statistics(Y, Y_fit, n_components, results, model, model_type, rhy
             'log_likelihood': results.llf, 'logs': logs, 'mean(est)': Y_fit.mean(), 'Y(est)': Y_fit}
 
 
-def get_best_component_per_model(df_results):
-    models_type = df_results['model_type'].unique()
-    best_components = pd.DataFrame()
+def get_best_n_components(df_results, test, model_type=None):
+    if model_type:
+        df_results = df_results[df_results['model_type'] == model_type].copy()
 
-    for model_type in models_type:
-        df_models = df_results[df_results['model_type'] == model_type].copy()
-
-        df_models = df_models.sort_values(by='n_components')
-        i = 0
-        for index, new_row in df_models.iterrows():
-            if i == 0:
-                best_row = new_row
-                i = 1
-            else:
-                best_row = f_test(best_row, new_row)
-
-        best_components = best_components.append(best_row, ignore_index=True)
-
-    return best_components
-
-
-# AIC, BIC, VOUNG
-def get_best_model_type_per_component(df_results, criterium):
-    n_components = df_results['n_components'].unique()
-    best_models = pd.DataFrame()
-
-    for component in n_components:
-        df_models = df_results[df_results['n_components'] == component].copy()
-
-        df_models = df_models.sort_values(by='model_type')
-        i = 0
-        for index, new_row in df_models.iterrows():
-            if i == 0:
-                best_row = new_row
-                i = 1
-            else:
-                if criterium == 'AIC':
-                    best_row = AIC_test(best_row, new_row)
-                elif criterium == 'BIC':
-                    best_row = BIC_test(best_row, new_row)
-                elif criterium == 'Vuong':
-                    best_row = vuong_test(best_row, new_row)
-                else:
-                    raise Exception("Invalid criterium option.")
-
-        best_models = best_models.append(best_row, ignore_index=True)
-
-    return best_models
-
-
-# AIC, BIC, Vuong, Z, F
-def get_best_by_test(df_results, test):
     df_results = df_results.sort_values(by='n_components')
+
     i = 0
     for index, new_row in df_results.iterrows():
         if i == 0:
             best_row = new_row
             i = 1
         else:
-            if test == 'F':
+            if best_row['n_components'] == new_row['n_components']: #non-nested
+                if test == 'AIC':
+                    best_row = AIC_test(best_row, new_row)
+                elif test == 'BIC':
+                    best_row = BIC_test(best_row, new_row)
+                elif test == 'Vuong':
+                    best_row = vuong_test(best_row, new_row)
+            else: # nested
                 best_row = f_test(best_row, new_row)
-            elif test == 'AIC':
+
+    return best_row
+
+# AIC, BIC, VOUNG, F
+def get_best_model_type(df_results, test, n_components=None):
+    if n_components:
+        df_results = df_results[df_results['n_components'] == n_components].copy()
+
+    df_results = df_results.sort_values(by='model_type')
+    i = 0
+    for index, new_row in df_results.iterrows():
+        if i == 0:
+            best_row = new_row
+            i = 1
+        else:
+            if test == 'AIC':
                 best_row = AIC_test(best_row, new_row)
             elif test == 'BIC':
                 best_row = BIC_test(best_row, new_row)
             elif test == 'Vuong':
                 best_row = vuong_test(best_row, new_row)
+            elif test == 'F':
+                best_row = f_test(best_row, new_row)
             else:
-                raise Exception("Invalid test option.")
+                raise Exception("Invalid criterium option.")
 
     return best_row
-
-
-# True first_model_type -> first n components then model type
-# False first_model_type -> fist best model then n components
-def get_best_model(df_results, test='Vuong', first_model_type=True, criterium='AIC'):
-    if first_model_type:
-        df_components = get_best_component_per_model(df_results)
-        df_best = get_best_by_test(df_components, test)
-    else:
-        df_models = get_best_model_type_per_component(df_results, criterium)
-        df_best = get_best_by_test(df_models, test)
-
-    return df_best
 
 
 def vuong_test(first_row, second_row):
@@ -307,10 +271,10 @@ def vuong_test(first_row, second_row):
 
     LR = second_row['log_likelihood'] - first_row['log_likelihood'] - (DoF / 2) * math.log(n_points, 10)
     var = (1 / n_points) * sum((second_row['logs'] - first_row['logs']) ** 2)
-    Z = LR / (math.sqrt(n_points) * var)
+    Z = LR / math.sqrt(n_points*var)
 
     v = 1 - stats.norm.cdf(Z, DoF, DF1)
-    if v > 0.95:
+    if v < 0.05:
         return second_row
     return first_row
 
@@ -346,13 +310,36 @@ def f_test(first_row, second_row):
 
     return first_row
 
+def calculate_confidential_intervals_parameters(df, n_components, model_type, repetitions, maxiter, maxfun, method):
+    sample_size = round(df.shape[0] - df.shape[0] / 3)
+    for i in range(0, repetitions):
+        sample = df.sample(sample_size)
+        _, stats, _, _, _ = fit_to_model(sample, n_components, model_type, maxiter, maxfun, method, 0)
+        if i == 0:
+            amplitude=np.array(stats['amplitude'])
+            mesor=np.array(stats['mesor'])
+
+        else:
+            amplitude=np.append(amplitude,stats['amplitude'])
+            mesor = np.append(mesor, stats['mesor'])
+
+    mean_amplitude=amplitude.mean()
+    std_amplitude=amplitude.std()
+    mean_mesor = mesor.mean()
+    std_mesor = mesor.std()
+
+    amplitude=np.array([mean_amplitude - 1.96 * std_amplitude,mean_amplitude + 1.96 * std_amplitude])
+    mesor=np.array([mean_mesor - 1.96 * std_mesor,mean_mesor + 1.96 * std_mesor])
+
+    return {'amplitude_CIs': amplitude, 'mesor_CIs': mesor}
 
 def compare_by_component(df, component, n_components, model_type, ax_indices, ax_titles, rows=1, cols=1,
-                         labels=None, maxiter=5000, maxfun=5000, method='nm', save_file_to='comparison.pdf'):
+                         labels=None, maxiter=5000, maxfun=5000, method='nm', repetitons=20,save_file_to='comparison.pdf'):
     df_results = pd.DataFrame(
-        columns=['component', 'model_type', 'n_components', 'amplitude', 'mesor', 'peaks', 'heights', 'p', 'RSS',
+        columns=[component, 'model_type', 'n_components', 'amplitude', 'mesor', 'peaks', 'heights', 'p', 'RSS',
                  'AIC', 'BIC',
-                 'log_likelihood', 'logs', 'mean(est)', 'Y(est)'])
+                 'log_likelihood', 'logs', 'mean(est)', 'Y(est)','confidential_intervals'])
+    df_results['confidential_intervals']=df_results['confidential_intervals'].astype(object)
 
     names = df[component].unique()
     fig = plt.figure(figsize=(8 * cols, 8 * rows))
@@ -363,6 +350,7 @@ def compare_by_component(df, component, n_components, model_type, ax_indices, ax
 
         df_name = df[df[component] == name]
         _, stats, X_test, Y_test, _ = fit_to_model(df_name, n_components, model_type, maxiter, maxfun, method, 0)
+        CIs= calculate_confidential_intervals_parameters(df_name,n_components,model_type,repetitons,maxiter,maxfun,method)
 
         ax = fig.add_subplot(gs[ax_indices[i]])
         if labels:
@@ -373,8 +361,9 @@ def compare_by_component(df, component, n_components, model_type, ax_indices, ax
             plot.subplot_model(df_name['X'], df_name['Y'], X_test, Y_test, ax, color=colors[i],
                                plot_measurements_with_color=colors[i], fit_label=name, raw_label='raw data\n- ' + name)
 
+        stats[component] = name
+        stats.update(CIs)
         df_results = df_results.append(stats, ignore_index=True)
-        df_results.loc[df_results.index[-1], 'component'] = name
         i = i + 1
 
     ax_list = fig.axes

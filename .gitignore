@@ -152,6 +152,7 @@ fabric.properties
 
 main.py
 data/
+results/
 example/.ipynb_checkpoints/
 compare.py
 package-lock.json

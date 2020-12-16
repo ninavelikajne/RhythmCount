@@ -75,3 +75,5 @@ def get_model_name(model_type):
 
 def phase_to_radians(phase, period=24):
     return -(phase / period) * 2 * np.pi
+
+
