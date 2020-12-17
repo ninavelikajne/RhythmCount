@@ -9,15 +9,16 @@ import matplotlib.dates as mdates
 import matplotlib.dates as md
 
 
-def plot_best_models(dfs, model_type, n_components, title=[''], save_file_to='win.pdf', maxiter=5000, maxfun=5000,
-                     method='nm'):
+def plot_models(dfs, model_type, n_components, title=[''], save_file_to='win.pdf', maxiter=5000, maxfun=5000,
+                method='nm', period=24):
     rows, cols = hlp.get_factors(len(dfs))
     fig = plt.figure(figsize=(8 * cols, 8 * rows))
     gs = gridspec.GridSpec(rows, cols)
 
     i = 0
     for df in dfs:
-        results, stats, X_test, Y_test, _ = dproc.fit_to_model(df, n_components[i], model_type[i], maxiter, maxfun,
+        results, stats, X_test, Y_test, _ = dproc.fit_to_model(df, n_components[i], model_type[i], period, maxiter,
+                                                               maxfun,
                                                                method, 0)
 
         # plot
@@ -39,9 +40,8 @@ def plot_best_models(dfs, model_type, n_components, title=[''], save_file_to='wi
     except:
         print("Can not save plot.")
 
-
 def plot_confidential_intervals(dfs, model_type, n_components, title, repetitions=30, maxiter=5000, maxfun=5000,
-                                method='nm', save_file_to='CIs.pdf'):
+                                period=24, method='nm', save_file_to='CIs.pdf'):
     rows, cols = hlp.get_factors(len(dfs))
     fig = plt.figure(figsize=(8 * cols, 8 * rows))
     gs = gridspec.GridSpec(rows, cols)
@@ -50,14 +50,15 @@ def plot_confidential_intervals(dfs, model_type, n_components, title, repetition
     for df in dfs:
         ax = fig.add_subplot(gs[ix])
         Y = df['Y']
-        results, _, X_test, Y_test, X_fit_test = dproc.fit_to_model(df, n_components[ix], model_type[ix], maxiter,
+        results, _, X_test, Y_test, X_fit_test = dproc.fit_to_model(df, n_components[ix], model_type[ix], period,
+                                                                    maxiter,
                                                                     maxfun, method, 0)
 
         # CI
         res2 = copy.deepcopy(results)
         params = res2.params
         CIs = dproc.calculate_confidential_intervals(df, n_components[ix], model_type[ix], repetitions, maxiter, maxfun,
-                                                     method)
+                                                     method, period)
 
         N2 = round(10 * (0.7 ** n_components[ix]) + 4)
         P = np.zeros((len(params), N2))
@@ -100,6 +101,8 @@ def plot_confidential_intervals(dfs, model_type, n_components, title, repetition
         fig.savefig(r'results\/' + save_file_to)
     except:
         print("Can not save plot.")
+
+    return CIs
 
 
 def subplot_model(X, Y, X_test, Y_test, ax, plot_measurements=True, plot_measurements_with_color=False, plot_model=True,
