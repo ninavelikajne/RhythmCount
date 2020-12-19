@@ -17,10 +17,10 @@ with different regression models for count data: Poisson model, Generalized Pois
 Input data needs to be in required format. Data must contain X and Y columns, where X represents time and Y represents the target variable - count.
 After the data has been imported, different types of analyses can be applied. These are described in more details in the examples below and in the documentation.
 
-# Installation
+#  TODO Installation
 RhythmCount can be installed using pip with the command:
 
-pip install RhythmCount
+`pip install RhythmCount`
 
 # Examples
 Examples are given as interactive python notebook (ipynb) files:
@@ -32,10 +32,9 @@ Folder [example/results](example/results) contains plots that have been generate
 # Documentation
 The documentation can be found in folder [docs](docs/README.md).
 
-# How to cite RhythmCount
+# TODO How to cite RhythmCount
 If you are using RhythmCount for your scientific work, please cite:
 
-# TODO
 
 --------------------
 # TODO References
