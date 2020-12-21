@@ -1,11 +1,11 @@
 # RhythmCount
-RhythmCount presents a python package for cosinor based rhythmometry in count data. It is composed of three modules:
+RhythmCount presents a python package for cosinor based rhythmometry in count data. It is composed of two modules:
 
 * [data_processing](data_processing.py): specific functions to build and compare models, clean data, calculate confidential intervals etc.
 
 * [plot](plot.py): specific functions for plotting (eg. plotting models, raw data)
 
-To use these three modules include the following code in your python file:
+To use these modules include the following code in your python file:
 
 `from RhythmCount import plot, data_processing` 
 
@@ -13,7 +13,8 @@ RhythmCount can be used in a combination with different types of experimental co
 with different regression models for count data: Poisson model, Generalized Poisson model, Zero-Inflated Poisson model, Negative Binomial model and Zero-Inflated Negative Binomial model.<br/>
 
 Input data needs to be in required format. Data must contain X and Y columns, where X represents time and Y represents the target variable - count.
-After the data has been imported, different types of analyses can be applied. These are described in more details in the examples below and in the documentation.
+After the data has been imported, different types of analyses can be applied. These are described in more details in the examples below and in the documentation. <br/>
+[Helpers](helpers.py) contains only functions that are called inside data_processing and plot modules. It is not meant to be used by end user.
 
 #  TODO Installation
 RhythmCount can be installed using pip with the command:
