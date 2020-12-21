@@ -80,7 +80,7 @@ def fit_to_models(df, models_type, n_components, maxiter=5000, maxfun=5000, disp
     return df_results
 
 
-def cosinor(X, n_components, period=24, lin_comp=False):
+def cosinor(X, n_components, period=24):
     X_test = np.linspace(0, 100, 1000)
 
     for i in range(n_components):
@@ -99,11 +99,6 @@ def cosinor(X, n_components, period=24, lin_comp=False):
             X_fit_test = np.column_stack((X_fit_test, A_test, B_test))
 
     X_fit_eval_params = X_fit_test
-
-    if lin_comp and n_components:
-        X_fit = np.column_stack((X, X_fit))
-        X_fit_eval_params = np.column_stack((np.zeros(len(X_test)), X_fit_test))
-        X_fit_test = np.column_stack((X_test, X_fit_test))
 
     return X_fit, X_test, X_fit_test, X_fit_eval_params
 
