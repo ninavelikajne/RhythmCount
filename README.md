@@ -5,11 +5,9 @@ RhythmCount presents a python package for cosinor based rhythmometry in count da
 
 * [plot](plot.py): specific functions for plotting (eg. plotting models, raw data)
 
-* [helpers](helpers.py): helpers for data processing
-
 To use these three modules include the following code in your python file:
 
-`from RhythmCount import plot, helpers, data_processing` 
+`from RhythmCount import plot, data_processing` 
 
 RhythmCount can be used in a combination with different types of experimental count data. Basic RhythmCount impementation for analysing rhythmical count data is made with cosinor method in combination 
 with different regression models for count data: Poisson model, Generalized Poisson model, Zero-Inflated Poisson model, Negative Binomial model and Zero-Inflated Negative Binomial model.<br/>
