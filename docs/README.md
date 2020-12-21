@@ -5,7 +5,7 @@ RhythmCount presents a python package for cosinor based rhythmomethry in count d
 
 * [plot](docs_plot.md): specific functions for plotting (eg. plotting models, raw data)
 
-* [helpers](docs_helpers.md): helpers for data processing
+* helpers: helpers for data processing and plotting. Helpers module contains only functions that are called inside data_processing and plot modules. It is not meant to be used by end user.
 
 To use these three modules include the following code in your python file:
 
