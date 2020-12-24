@@ -43,7 +43,7 @@ def fit_to_models(df, models_type, n_components, maxiter=5000, maxfun=5000, disp
     for model_type in models_type:
         c = 0
         for n_component in n_components:
-            _, stats, X_test, Y_test, _ = fit_to_model(df, n_component, model_type, period, maxiter, maxfun, method,
+            _, df_result, X_test, Y_test, _ = fit_to_model(df, n_component, model_type, period, maxiter, maxfun, method,
                                                        disp)
 
             # plot
@@ -58,7 +58,7 @@ def fit_to_models(df, models_type, n_components, maxiter=5000, maxfun=5000, disp
                                        fit_label='N=' + str(n_component), plot_measurements=False)
                 c = c + 1
 
-            df_results = df_results.append(stats, ignore_index=True)
+            df_results = df_results.append(df_result, ignore_index=True)
 
         i = i + 1
 
@@ -140,9 +140,9 @@ def fit_to_model(df, n_components, model_type, period, maxiter, maxfun, method, 
         Y_fit = results.predict(X_fit)
 
     rhythm_params = evaluate_rhythm_params(X_test, Y_eval_params)
-    stats = calculate_statistics(Y, Y_fit, n_components, results, model, model_type, rhythm_params)
+    df_result = calculate_statistics(Y, Y_fit, n_components, results, model, model_type, rhythm_params)
 
-    return results, stats, X_test, Y_test, X_fit_test
+    return results, df_result, X_test, Y_test, X_fit_test
 
 
 def calculate_confidential_intervals(df, n_components, model_type, repetitions, maxiter, maxfun, method, period):
@@ -316,22 +316,22 @@ def calculate_confidential_intervals_parameters(df, n_components, model_type, re
     sample_size = round(df.shape[0] - df.shape[0] / 3)
     for i in range(0, repetitions):
         sample = df.sample(sample_size)
-        _, stats, _, _, _ = fit_to_model(sample, n_components, model_type, period, maxiter, maxfun, method, 0)
+        _, df_result, _, _, _ = fit_to_model(sample, n_components, model_type, period, maxiter, maxfun, method, 0)
         if i == 0:
-            amplitude = np.array(stats['amplitude'])
-            mesor = np.array(stats['mesor'])
+            amplitude = np.array(df_result['amplitude'])
+            mesor = np.array(df_result['mesor'])
             peaks = np.empty((repetitions, period))
             peaks[:] = np.nan
-            peaks = hlp.add_peaks(peaks, stats['peaks'], i)
+            peaks = hlp.add_peaks(peaks, df_result['peaks'], i)
             heights = np.empty((repetitions, period))
             heights[:] = np.nan
-            heights = hlp.add_heights(heights, stats['heights'], stats['peaks'], i)
+            heights = hlp.add_heights(heights, df_result['heights'], df_result['peaks'], i)
 
         else:
-            amplitude = np.append(amplitude, stats['amplitude'])
-            mesor = np.append(mesor, stats['mesor'])
-            peaks = hlp.add_peaks(peaks, stats['peaks'], i)
-            heights = hlp.add_heights(heights, stats['heights'], stats['peaks'], i)
+            amplitude = np.append(amplitude, df_result['amplitude'])
+            mesor = np.append(mesor, df_result['mesor'])
+            peaks = hlp.add_peaks(peaks, df_result['peaks'], i)
+            heights = hlp.add_heights(heights, df_result['heights'], df_result['peaks'], i)
 
     mean_amplitude = amplitude.mean()
     std_amplitude = amplitude.std()
@@ -385,7 +385,7 @@ def compare_by_component(df, component, n_components, models_type, ax_indices, a
         best_component = get_best_n_components(results, 'Vuong')
         best = get_best_model_type(results, 'Vuong', n_components=best_component['n_components'])
 
-        _, stats, X_test, Y_test, _ = fit_to_model(df_name, best.n_components, best.model_type, period, maxiter, maxfun,
+        _, df_result, X_test, Y_test, _ = fit_to_model(df_name, best.n_components, best.model_type, period, maxiter, maxfun,
                                                    method, 0)
         CIs = calculate_confidential_intervals_parameters(df_name, best.n_components, best.model_type, repetitions,
                                                           maxiter, maxfun, method, period)
@@ -399,9 +399,9 @@ def compare_by_component(df, component, n_components, models_type, ax_indices, a
             plot.subplot_model(df_name['X'], df_name['Y'], X_test, Y_test, ax, color=colors[i],
                                plot_measurements_with_color=colors[i], fit_label=name, raw_label='raw data\n- ' + name)
 
-        stats[component] = name
-        stats.update(CIs)
-        df_results = df_results.append(stats, ignore_index=True)
+        df_result[component] = name
+        df_result.update(CIs)
+        df_results = df_results.append(df_result, ignore_index=True)
         i = i + 1
 
     ax_list = fig.axes
