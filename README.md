@@ -26,7 +26,7 @@ Examples are given as interactive python notebook (ipynb) files:
 
 * [example/traffic_example.ipynb](example/traffic_example.ipynb): analysis of traffic data
 
-Folder [example/results](example/results) contains plots that have been generated when running traffic_example.ipynb.
+Folder [example/results](example/results) contains plots and .csv files that have been generated when running traffic_example.ipynb.
 
 # Documentation
 The documentation can be found in folder [docs](docs/README.md).
