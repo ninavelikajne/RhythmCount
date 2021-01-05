@@ -41,13 +41,13 @@ Returns:
 * `Y_test (ndarray)` - Predicted values for X_fit_test.
 * `X_fit_test` - X_test values after applied cosinor method.
 
-## fit_to_models(df, models_type, n_components, maxiter=5000, maxfun=5000, disp=0, method='nm', plot_models=True, period=24, save_file_to='models.pdf')
+## fit_to_models(df, models_type=['poisson', 'zero_poisson', 'gen_poisson', 'nb', 'zero_nb'], n_components=[1, 2, 3, 4], maxiter=5000, maxfun=5000, disp=0, method='nm', plot_models=True, period=24, save_file_to='models.pdf')
 Builds multiple models and plots them. Calls function `fit_to_model()`.<br>
 
 Parameters:
 * `df (DataFrame)` - Dataframe should have two columns: X and Y.
-* `n_components ([int])` - Numbers of components.
-* `model_type ([string])` - Regression models.  All possible `'poisson', 'gen_poisson', 'zero_poisson', 'nb', 'zero_nb'`.
+* `n_components ([int], default=[1, 2, 3, 4])` - Numbers of components.
+* `model_type ([string], default=['poisson', 'zero_poisson', 'gen_poisson', 'nb', 'zero_nb'])` - Regression models.  All possible `'poisson', 'gen_poisson', 'zero_poisson', 'nb', 'zero_nb'`.
 * `method (string, default='nm')` - Optimization method used for building a model. More in library [statsmodels](https://www.statsmodels.org/stable/generated/statsmodels.discrete.discrete_model.Logit.fit.html).
 * `maxiter (int, default=5000)` - Parameter used for building a model. The maximum number of iterations to perform.
 * `maxfun (int, default=5000)` - Parameter used for building a model. Maximum number of function evaluations to make.
@@ -60,18 +60,21 @@ Parameters:
 Returns:
 * `df_results (DataFrame)` - Results and other information of all built models. Columns: `'model_type', 'n_components', 'amplitude', 'mesor', 'peaks', 'heights', 'p', 'RSS', 'AIC', 'BIC', 'log_likelihood', 'logs', 'mean(est)', 'Y(est)'`.
 
-## calculate_confidential_intervals(df, n_components, model_type, repetitions, maxiter, maxfun, method, period)
+## calculate_confidential_intervals(df, n_components, model_type, all_peaks, repetitions=20, maxiter=5000, maxfun=5000, method='nm', period=24, precision_rate=2)
 Calculates confidential intervals of parameters for given model.<br>
 
 Parameters:
 * `df (DataFrame)` - Dataframe should have two columns: X and Y.
 * `n_components (int)` - Number of components.
 * `model_type (string)` - Regression model.  All possible `'poisson', 'gen_poisson', 'zero_poisson', 'nb', 'zero_nb'`.
-* `method (string)` - Optimization method used for building a model. More in library [statsmodels](https://www.statsmodels.org/stable/generated/statsmodels.discrete.discrete_model.Logit.fit.html).
-* `maxiter (int)` - Parameter used for building a model. The maximum number of iterations to perform.
-* `maxfun (int)` - Parameter used for building a model. Maximum number of function evaluations to make.
-* `period (int)` - Parameter for setting the period of data.
-* `repetitions (int)` - Number of repetitions when calculating confidential intervals.<br>
+* `all_peaks ([float])` - Peaks detected at model building.
+* `method (string, default='nm')` - Optimization method used for building a model. More in library [statsmodels](https://www.statsmodels.org/stable/generated/statsmodels.discrete.discrete_model.Logit.fit.html).
+* `maxiter (int, default=5000)` - Parameter used for building a model. The maximum number of iterations to perform.
+* `maxfun (int, default=5000)` - Parameter used for building a model. Maximum number of function evaluations to make.
+* `period (int, default=24)` - Parameter for setting the period of data.
+* `repetitions (int, default=20)` - Number of repetitions when calculating confidential intervals.
+* `precision_rate (float, default=2)` - Precision in hours for detecting confidential intervals of peaks. Minimal difference in hours between two different peaks.
+<br>
 
 Returns:
 * `CIs (dict)` - Confidential intervals of model's parameters.
@@ -115,7 +118,7 @@ Parameters:
 Returns:
 * `CIs (dict)` - Confidential intervals of rhythm parameters. Columns: `'amplitude_CIs', 'mesor_CIs', 'peaks_CIs', 'heights_CIs'`
 
-## compare_by_component(df, component, n_components, models_type, ax_indices, ax_titles, rows=1, cols=1, labels=None, maxiter=5000, maxfun=5000, method='nm', period=24, repetitions=20, save_file_to='comparison.pdf')
+## compare_by_component(df, component, n_components, models_type, ax_indices, ax_titles, rows=1, cols=1, labels=None, maxiter=5000, maxfun=5000, method='nm', period=24, precision_rate=2, repetitions=20, save_file_to='comparison.pdf')
 Compare dataset by one component. For each unique value of component new model is built and evaluated.<br>
 
 Parameters:
@@ -129,6 +132,7 @@ Parameters:
 * `period (int, default=24)` - Parameter for setting the period of data.
 * `repetitions (int, default=20)` - Number of repetitions when calculating confidential intervals.
 * `ax_indices ([int]` - Set index of each plot. Must be the same length as number of all unique component's values.
+* `precision_rate (float, default=2)` - Precision in hours for detecting confidential intervals of peaks. Minimal difference in hours between two different peaks.
 * `ax_titles ([string])` - Set titles of axes.
 * `rows (int, default=1)` -  Define rows of plot grid.
 * `cols (int, default=1)` -  Define columns of plot grid.
