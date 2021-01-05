@@ -11,6 +11,8 @@ import plot as plot
 import math
 
 colors = ['blue', 'green', 'orange', 'red', 'purple', 'olive', 'tomato', 'yellow', 'pink', 'turquoise', 'lightgreen']
+models_type = ['poisson', 'zero_poisson', 'gen_poisson', 'nb', 'zero_nb']
+n_components = [1, 2, 3, 4]
 
 
 def clean_data(df):
@@ -28,7 +30,8 @@ def clean_data(df):
     return df
 
 
-def fit_to_models(df, models_type, n_components, maxiter=5000, maxfun=5000, disp=0, method='nm', plot_models=True,
+def fit_to_models(df, models_type=models_type, n_components=n_components, maxiter=5000, maxfun=5000, disp=0,
+                  method='nm', plot_models=True,
                   period=24, save_file_to='models.pdf'):
     df_results = pd.DataFrame(
         columns=['model_type', 'n_components', 'amplitude', 'mesor', 'peaks', 'heights', 'p', 'RSS', 'AIC', 'BIC',
@@ -44,7 +47,7 @@ def fit_to_models(df, models_type, n_components, maxiter=5000, maxfun=5000, disp
         c = 0
         for n_component in n_components:
             _, df_result, X_test, Y_test, _ = fit_to_model(df, n_component, model_type, period, maxiter, maxfun, method,
-                                                       disp)
+                                                           disp)
 
             # plot
             if plot_models:
@@ -183,8 +186,10 @@ def evaluate_rhythm_params(X, Y, period=24):
     heights = heights['peak_heights']
     x = np.take(X, locs)
 
-    result = {'amplitude': round(AMPLITUDE,2), 'mesor': round(MESOR,2), 'locs': np.around(x,decimals=2), 'heights': np.around(heights,decimals=2)}
+    result = {'amplitude': round(AMPLITUDE, 2), 'mesor': round(MESOR, 2), 'locs': np.around(x, decimals=2),
+              'heights': np.around(heights, decimals=2)}
     return result
+
 
 def calculate_statistics(Y, Y_fit, n_components, results, model, model_type, rhythm_param):
     # p value
@@ -311,8 +316,9 @@ def f_test(first_row, second_row):
     return first_row
 
 
-def calculate_confidential_intervals_parameters(df, n_components, model_type, repetitions=20, maxiter=5000, maxfun=5000, method='nm',
-                                                period=24):
+def calculate_confidential_intervals_parameters(df, n_components, model_type, all_peaks, repetitions=20, maxiter=5000,
+                                                maxfun=5000, method='nm',
+                                                period=24, precision_rate=2):
     sample_size = round(df.shape[0] - df.shape[0] / 3)
     for i in range(0, repetitions):
         sample = df.sample(sample_size)
@@ -322,34 +328,33 @@ def calculate_confidential_intervals_parameters(df, n_components, model_type, re
             mesor = np.array(df_result['mesor'])
             peaks = np.empty((repetitions, period))
             peaks[:] = np.nan
-            peaks = hlp.add_peaks(peaks, df_result['peaks'], i)
+            peaks = hlp.add_to_table(peaks, df_result['peaks'], i)
             heights = np.empty((repetitions, period))
             heights[:] = np.nan
-            heights = hlp.add_heights(heights, df_result['heights'], df_result['peaks'], i)
+            heights = hlp.add_to_table(heights, df_result['heights'], i)
 
         else:
             amplitude = np.append(amplitude, df_result['amplitude'])
             mesor = np.append(mesor, df_result['mesor'])
-            peaks = hlp.add_peaks(peaks, df_result['peaks'], i)
-            heights = hlp.add_heights(heights, df_result['heights'], df_result['peaks'], i)
+            peaks = hlp.add_to_table(peaks, df_result['peaks'], i)
+            heights = hlp.add_to_table(heights, df_result['heights'], i)
 
     mean_amplitude = amplitude.mean()
     std_amplitude = amplitude.std()
     mean_mesor = mesor.mean()
     std_mesor = mesor.std()
-    mean_std_peaks = hlp.calculate_mean_std(peaks)
-    mean_std_heights = hlp.calculate_mean_std(heights)
+    mean_std_peaks, mean_std_heights = hlp.calculate_mean_std(peaks, heights, all_peaks, precision_rate)
 
     amplitude = np.array([mean_amplitude - 1.96 * std_amplitude, mean_amplitude + 1.96 * std_amplitude])
     mesor = np.array([mean_mesor - 1.96 * std_mesor, mean_mesor + 1.96 * std_mesor])
-    if isinstance(mean_std_peaks[0], np.ndarray):
+    if (len(mean_std_peaks) == 0):
+        peaks = []
+        heights = []
+    elif isinstance(mean_std_peaks[0], np.ndarray):
         peaks = np.array([mean_std_peaks[:, 0] - 1.96 * mean_std_peaks[:, 1],
                           mean_std_peaks[:, 0] + 1.96 * mean_std_peaks[:, 1]])
         heights = np.array([mean_std_heights[:, 0] - 1.96 * mean_std_heights[:, 1],
                             mean_std_heights[:, 0] + 1.96 * mean_std_heights[:, 1]])
-    elif (len(mean_std_peaks) == 0):
-        peaks=[]
-        heights=[]
     else:
         peaks = np.array([mean_std_peaks[0] - 1.96 * mean_std_peaks[1],
                           mean_std_peaks[0] + 1.96 * mean_std_peaks[1]])
@@ -363,7 +368,8 @@ def calculate_confidential_intervals_parameters(df, n_components, model_type, re
 
 
 def compare_by_component(df, component, n_components, models_type, ax_indices, ax_titles, rows=1, cols=1,
-                         labels=None, maxiter=5000, maxfun=5000, method='nm', period=24, repetitions=20,
+                         labels=None, maxiter=5000, maxfun=5000, method='nm', period=24, precision_rate=2,
+                         repetitions=20,
                          save_file_to='comparison.pdf'):
     df_results = pd.DataFrame(
         columns=[component, 'model_type', 'n_components', 'amplitude', 'mesor', 'peaks', 'heights', 'p', 'RSS',
@@ -379,16 +385,20 @@ def compare_by_component(df, component, n_components, models_type, ax_indices, a
         df_name = df[df[component] == name]
 
         # fit
-        results = fit_to_models(df, models_type, n_components, plot_models=False)
+        results = fit_to_models(df_name, models_type, n_components, plot_models=False)
 
         # compare
         best_component = get_best_n_components(results, 'Vuong')
         best = get_best_model_type(results, 'Vuong', n_components=best_component['n_components'])
 
-        _, df_result, X_test, Y_test, _ = fit_to_model(df_name, best.n_components, best.model_type, period, maxiter, maxfun,
-                                                   method, 0)
-        CIs = calculate_confidential_intervals_parameters(df_name, best.n_components, best.model_type, repetitions,
-                                                          maxiter, maxfun, method, period)
+        _, df_result, X_test, Y_test, _ = fit_to_model(df_name, best.n_components, best.model_type, period, maxiter,
+                                                       maxfun,
+                                                       method, 0)
+
+        CIs = calculate_confidential_intervals_parameters(df_name, best.n_components, best.model_type, df_result['peaks'],
+                                                          repetitions=repetitions,
+                                                          maxiter=maxiter, maxfun=maxfun, method=method, period=period,
+                                                          precision_rate=precision_rate)
         # plot
         ax = fig.add_subplot(gs[ax_indices[i]])
         if labels:

@@ -48,7 +48,7 @@ def get_factors(n):
         2: (2, 1),
         3: (2, 2),
         4: (2, 2),
-        5: (3, 2)
+        5: (2, 3)
     })
 
     return grid[n]
@@ -77,62 +77,82 @@ def phase_to_radians(phase, period=24):
     return -(phase / period) * 2 * np.pi
 
 
-def add_peaks(peaks, new_peaks, row_ix):
-    for peak in new_peaks:
-        ix = int(round(peak))
-        peaks[row_ix][ix] = peak
-
-    return peaks
-
-
-def add_heights(heights, new_heights, peaks, row_ix):
+def add_to_table(table, new_table, row_ix):
     i = 0
-    for height in new_heights:
-        ix = int(round(peaks[i]))
-        heights[row_ix][ix] = height
+    for new in new_table:
+        table[row_ix][i] = new
         i = i + 1
 
-    return heights
+    return table
 
 
-def calculate_mean_std(table):
-    repetitions = len(table)
-    period = len(table[0])
-    mean_N_std = np.empty((3, period))
-    mean_N_std[:] = np.nan
-    for i in range(period):
-        N = 0
-        mean = 0
-        for j in range(repetitions):
-            value = table[j][i]
-            if not np.isnan(value):
-                N = N + 1
-                mean = mean + value
-        if N != 0:
-            mean_N_std[0][i] = mean / N
-            mean_N_std[1][i] = N
+def calculate_mean_std(table_peaks, table_heights, peaks, precision_rate):
+    max_peaks = len(peaks)
+    repetitions = len(table_peaks)
+    period = len(table_peaks[0])
 
-    for i in range(period):
-        if mean_N_std[1][i] < repetitions * 0.50:
-            mean_N_std[0][i] = np.nan
-            mean_N_std[1][i] = np.nan
+    values_peaks = np.empty((max_peaks, repetitions))
+    values_peaks[:] = np.nan
+    mean_N_std_p = np.empty((3, (max_peaks)))
+    mean_N_std_p[:] = np.nan
+
+    values_heights = np.empty((max_peaks, repetitions))
+    values_heights[:] = np.nan
+    mean_N_std_h = np.empty((3, (max_peaks)))
+    mean_N_std_h[:] = np.nan
 
     ix = 0
-    for i in range(period):
-        sum = 0
-        if not np.isnan(mean_N_std[0][i]):
+    for peak in peaks:
+        N = 0
+        mean_p = 0
+        mean_h = 0
+        k = 0
+        for i in range(period):
             for j in range(repetitions):
-                if not np.isnan(table[j][i]):
-                    sum = sum + (table[j][i] - mean_N_std[0][i]) ** 2
-            mean_N_std[2][i] = math.sqrt((1 / mean_N_std[1][i]) * sum)
-            temp = np.array([mean_N_std[0][i], mean_N_std[2][i]])
-            if ix == 0:
-                mean_std = np.array(temp)
-            else:
-                mean_std = np.row_stack((mean_std, temp))
+                value_p = table_peaks[j][i]
+                value_h = table_heights[j][i]
+                if not np.isnan(value_p):
+                    if math.isclose(value_p, peak, abs_tol=precision_rate):
+                        N = N + 1
+                        mean_p = mean_p + value_p
+                        mean_h = mean_h + value_h
+                        values_peaks[ix][k] = value_p
+                        values_heights[ix][k] = value_h
+                        k = k + 1
+                        if k == repetitions:
+                            break
+            if k == repetitions:
+                break
+
+        if N != 0:
+            mean_N_std_p[0][ix] = mean_p / N
+            mean_N_std_p[1][ix] = N
+            mean_N_std_h[0][ix] = mean_h / N
+            mean_N_std_h[1][ix] = N
+
             ix = ix + 1
 
-    if ix==0:
-        return []
+    ix = 0
+    for i in range(max_peaks):
+        sum_p = 0
+        sum_h = 0
+        if not np.isnan(mean_N_std_p[0][i]):
+            for j in range(repetitions):
+                if not np.isnan(values_peaks[i][j]):
+                    sum_p = sum_p + (values_peaks[i][j] - mean_N_std_p[0][i]) ** 2
+                    sum_h = sum_h + (values_heights[i][j] - mean_N_std_h[0][i]) ** 2
+            mean_N_std_p[2][i] = math.sqrt((1 / mean_N_std_p[1][i]) * sum_p)
+            mean_N_std_h[2][i] = math.sqrt((1 / mean_N_std_h[1][i]) * sum_h)
+
+            if ix == 0:
+                mean_std_p = np.array(np.array([mean_N_std_p[0][i], mean_N_std_p[2][i]]))
+                mean_std_h = np.array(np.array([mean_N_std_h[0][i], mean_N_std_h[2][i]]))
+            else:
+                mean_std_p = np.row_stack((mean_std_p, np.array([mean_N_std_p[0][i], mean_N_std_p[2][i]])))
+                mean_std_h = np.row_stack((mean_std_h, np.array([mean_N_std_h[0][i], mean_N_std_h[2][i]])))
+            ix = ix + 1
+
+    if ix == 0:
+        return [],[]
     else:
-        return mean_std
+        return mean_std_p, mean_std_h
