@@ -2,7 +2,7 @@ from distutils.core import setup
 setup(
   name = 'RhythmCount',
   packages = ['RhythmCount'],
-  version = '1.0',
+  version = '0.0',
   license='MIT',
   description = 'Python package for cosinor based rhytmometry in count data',
   author = 'Nina Velikajne, Miha Moškon',
