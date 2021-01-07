@@ -144,6 +144,8 @@ def fit_to_model(df, n_components, model_type, period, maxiter, maxfun, method, 
 
     rhythm_params = evaluate_rhythm_params(X_test, Y_eval_params)
     df_result = calculate_statistics(Y, Y_fit, n_components, results, model, model_type, rhythm_params)
+    df_result.update({'X_test': X_test})
+    df_result.update({'Y_test': Y_test})
 
     return results, df_result, X_test, Y_test, X_fit_test
 
@@ -368,12 +370,10 @@ def calculate_confidential_intervals_parameters(df, n_components, model_type, al
 
 
 def compare_by_component(df, component, n_components, models_type, ax_indices, ax_titles, rows=1, cols=1,
-                         labels=None, maxiter=5000, maxfun=5000, method='nm', period=24, precision_rate=2,
-                         repetitions=20,
-                         save_file_to='comparison.pdf'):
-    df_results = pd.DataFrame(
-        columns=[component, 'model_type', 'n_components', 'amplitude', 'mesor', 'peaks', 'heights', 'p', 'RSS',
-                 'AIC', 'BIC', 'log_likelihood', 'logs', 'mean(est)', 'Y(est)'])
+                         labels=None, eval_order=True, maxiter=5000, maxfun=5000, method='nm', period=24,
+                         precision_rate=2,
+                         repetitions=20, test='Vuong', save_file_to='comparison.pdf'):
+    df_results = pd.DataFrame()
 
     names = df[component].unique()
     fig = plt.figure(figsize=(8 * cols, 8 * rows))
@@ -388,30 +388,40 @@ def compare_by_component(df, component, n_components, models_type, ax_indices, a
         results = fit_to_models(df_name, models_type, n_components, plot_models=False)
 
         # compare
-        best_component = get_best_n_components(results, 'Vuong')
-        best = get_best_model_type(results, 'Vuong', n_components=best_component['n_components'])
+        if eval_order:
+            best_component = get_best_n_components(results, test)
+            best = get_best_model_type(results, test, n_components=best_component['n_components'])
+        else:
+            best_model_type = get_best_model_type(df_results, test)
+            best = get_best_n_components(df_results, test, model_type=best_model_type['model_type'])
 
-        _, df_result, X_test, Y_test, _ = fit_to_model(df_name, best.n_components, best.model_type, period, maxiter,
-                                                       maxfun,
-                                                       method, 0)
+        model_type = best.model_type
+        n_component = int(best.n_components)
 
-        CIs = calculate_confidential_intervals_parameters(df_name, best.n_components, best.model_type, df_result['peaks'],
-                                                          repetitions=repetitions,
-                                                          maxiter=maxiter, maxfun=maxfun, method=method, period=period,
-                                                          precision_rate=precision_rate)
+        CIs_params = calculate_confidential_intervals_parameters(df_name, n_component, model_type, best['peaks'],
+                                                                 repetitions=repetitions,
+                                                                 maxiter=maxiter, maxfun=maxfun, method=method,
+                                                                 period=period,
+                                                                 precision_rate=precision_rate)
         # plot
         ax = fig.add_subplot(gs[ax_indices[i]])
         if labels:
-            plot.subplot_model(df_name['X'], df_name['Y'], X_test, Y_test, ax, color=colors[i],
+            plot.subplot_model(df_name['X'], df_name['Y'], best['X_test'], best['Y_test'], ax, color=colors[i],
                                plot_measurements_with_color=colors[i], fit_label=labels[name],
                                raw_label='raw data\n- ' + name)
         else:
-            plot.subplot_model(df_name['X'], df_name['Y'], X_test, Y_test, ax, color=colors[i],
+            plot.subplot_model(df_name['X'], df_name['Y'], best['X_test'], best['Y_test'], ax, color=colors[i],
                                plot_measurements_with_color=colors[i], fit_label=name, raw_label='raw data\n- ' + name)
 
-        df_result[component] = name
-        df_result.update(CIs)
-        df_results = df_results.append(df_result, ignore_index=True)
+        best = best.to_dict()
+        CIs = plot.subplot_confidential_intervals(df_name, n_component, model_type, ax, repetitions=repetitions,
+                                                  maxiter=maxiter, maxfun=maxfun, period=period, method=method)
+        CIs.columns = ['CIs_0', 'CIs_1']
+        CIs = CIs.to_dict()
+        best[component] = name
+        best.update(CIs_params)
+        best.update(CIs)
+        df_results = df_results.append(best, ignore_index=True)
         i = i + 1
 
     ax_list = fig.axes

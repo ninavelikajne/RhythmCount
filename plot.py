@@ -9,23 +9,23 @@ import matplotlib.dates as mdates
 import matplotlib.dates as md
 
 
-def plot_models(dfs, model_type, n_components, title=[''], save_file_to='win.pdf', maxiter=5000, maxfun=5000,
-                method='nm', period=24):
-    rows, cols = hlp.get_factors(len(dfs))
+def plot_model(df, model_type, n_components, title='', plot_CIs=True, repetitions=20, save_file_to='model.pdf',
+               maxiter=5000, maxfun=5000,
+               method='nm', period=24):
+    rows, cols = hlp.get_factors(1)
     fig = plt.figure(figsize=(8 * cols, 8 * rows))
     gs = gridspec.GridSpec(rows, cols)
 
-    i = 0
-    for df in dfs:
-        results, stats, X_test, Y_test, _ = dproc.fit_to_model(df, n_components[i], model_type[i], period, maxiter,
-                                                               maxfun,
-                                                               method, 0)
+    results, stats, X_test, Y_test, _ = dproc.fit_to_model(df, n_components, model_type, period, maxiter,
+                                                           maxfun,
+                                                           method, 0)
 
-        # plot
-        ax = fig.add_subplot(gs[i])
-        subplot_model(df['X'], df['Y'], X_test, Y_test, ax, color='blue', title=title[i], fit_label='fitted curve')
-
-        i = i + 1
+    # plot
+    ax = fig.add_subplot(gs[0])
+    subplot_model(df['X'], df['Y'], X_test, Y_test, ax, color='blue', title=title, fit_label='fitted curve')
+    if plot_CIs:
+        CIs = subplot_confidential_intervals(df, n_components, model_type, ax, repetitions=repetitions, maxiter=maxiter,
+                                             maxfun=maxfun, period=period, method=method)
 
     ax_list = fig.axes
     for ax in ax_list:
@@ -40,54 +40,54 @@ def plot_models(dfs, model_type, n_components, title=[''], save_file_to='win.pdf
     except:
         print("Can not save plot.")
 
-def plot_confidential_intervals(dfs, model_type, n_components, title, repetitions=30, maxiter=5000, maxfun=5000,
+    if plot_CIs:
+        return CIs
+
+
+def plot_confidential_intervals(df, model_type, n_components, title, repetitions=30, maxiter=5000, maxfun=5000,
                                 period=24, method='nm', save_file_to='CIs.pdf'):
-    rows, cols = hlp.get_factors(len(dfs))
+    rows, cols = hlp.get_factors(1)
     fig = plt.figure(figsize=(8 * cols, 8 * rows))
     gs = gridspec.GridSpec(rows, cols)
 
-    ix = 0
-    for df in dfs:
-        ax = fig.add_subplot(gs[ix])
-        Y = df['Y']
-        results, _, X_test, Y_test, X_fit_test = dproc.fit_to_model(df, n_components[ix], model_type[ix], period,
-                                                                    maxiter,
-                                                                    maxfun, method, 0)
+    ax = fig.add_subplot(gs[0])
+    Y = df['Y']
+    results, _, X_test, Y_test, X_fit_test = dproc.fit_to_model(df, n_components, model_type, period,
+                                                                maxiter,
+                                                                maxfun, method, 0)
 
-        # CI
-        res2 = copy.deepcopy(results)
-        params = res2.params
-        CIs = dproc.calculate_confidential_intervals(df, n_components[ix], model_type[ix], repetitions, maxiter, maxfun,
-                                                     method, period)
+    # CI
+    res2 = copy.deepcopy(results)
+    params = res2.params
+    CIs = dproc.calculate_confidential_intervals(df, n_components, model_type, repetitions, maxiter, maxfun,
+                                                 method, period)
 
-        N2 = round(10 * (0.7 ** n_components[ix]) + 4)
-        P = np.zeros((len(params), N2))
+    N2 = round(10 * (0.7 ** n_components) + 4)
+    P = np.zeros((len(params), N2))
 
-        i = 0
-        for index, CI in CIs.iterrows():
-            P[i, :] = np.linspace(CI[0], CI[1], N2)
-            i = i + 1
+    i = 0
+    for index, CI in CIs.iterrows():
+        P[i, :] = np.linspace(CI[0], CI[1], N2)
+        i = i + 1
 
-        param_samples = hlp.lazy_cartesian_product(P)
-        size = param_samples.max_size
-        N = round(df.shape[0] - df.shape[0] / 3)
+    param_samples = hlp.lazy_cartesian_product(P)
+    size = param_samples.max_size
+    N = round(df.shape[0] - df.shape[0] / 3)
 
-        for i in range(0, N):
-            j = random.randint(0, size)
-            p = param_samples.entry_at(j)
-            res2.initialize(results.model, p)
-            if model_type[ix] == 'zero_nb' or model_type[ix] == "zero_poisson":
-                Y_test_CI = res2.predict(X_fit_test, exog_infl=X_fit_test)
-            else:
-                Y_test_CI = res2.predict(X_fit_test)
-            if i == 0:
-                ax.plot(X_test, Y_test_CI, color='tomato', alpha=0.05, linewidth=0.1, label='confidential intervals')
-            else:
-                ax.plot(X_test, Y_test_CI, color='tomato', alpha=0.05, linewidth=0.1)
+    for i in range(0, N):
+        j = random.randint(0, size)
+        p = param_samples.entry_at(j)
+        res2.initialize(results.model, p)
+        if model_type == 'zero_nb' or model_type == "zero_poisson":
+            Y_test_CI = res2.predict(X_fit_test, exog_infl=X_fit_test)
+        else:
+            Y_test_CI = res2.predict(X_fit_test)
+        if i == 0:
+            ax.plot(X_test, Y_test_CI, color='tomato', alpha=0.05, linewidth=0.1, label='confidential intervals')
+        else:
+            ax.plot(X_test, Y_test_CI, color='tomato', alpha=0.05, linewidth=0.1)
 
-        subplot_model(df['X'], Y, X_test, Y_test, ax, title=title[ix], plot_model=False)
-
-        ix = i + 1
+    subplot_model(df['X'], Y, X_test, Y_test, ax, title=title, plot_model=False)
 
     ax_list = fig.axes
     for ax in ax_list:
@@ -105,6 +105,46 @@ def plot_confidential_intervals(dfs, model_type, n_components, title, repetition
     return CIs
 
 
+def subplot_confidential_intervals(df, n_components, model_type, ax, repetitions=30, maxiter=5000, maxfun=5000,
+                                   period=24, method='nm'):
+    results, _, X_test, Y_test, X_fit_test = dproc.fit_to_model(df, n_components, model_type, period,
+                                                                maxiter,
+                                                                maxfun, method, 0)
+
+    # CI
+    res2 = copy.deepcopy(results)
+    params = res2.params
+    CIs = dproc.calculate_confidential_intervals(df, n_components, model_type, repetitions, maxiter, maxfun,
+                                                 method, period)
+
+    N2 = round(10 * (0.7 ** n_components) + 4)
+    P = np.zeros((len(params), N2))
+
+    i = 0
+    for index, CI in CIs.iterrows():
+        P[i, :] = np.linspace(CI[0], CI[1], N2)
+        i = i + 1
+
+    param_samples = hlp.lazy_cartesian_product(P)
+    size = param_samples.max_size
+    N = round(df.shape[0] - df.shape[0] / 3)
+
+    for i in range(0, N):
+        j = random.randint(0, size)
+        p = param_samples.entry_at(j)
+        res2.initialize(results.model, p)
+        if model_type == 'zero_nb' or model_type == "zero_poisson":
+            Y_test_CI = res2.predict(X_fit_test, exog_infl=X_fit_test)
+        else:
+            Y_test_CI = res2.predict(X_fit_test)
+        if i == 0:
+            ax.plot(X_test, Y_test_CI, color='tomato', alpha=0.022, linewidth=0.1, label='confidential intervals')
+        else:
+            ax.plot(X_test, Y_test_CI, color='tomato', alpha=0.022, linewidth=0.1)
+
+    return CIs
+
+
 def subplot_model(X, Y, X_test, Y_test, ax, plot_measurements=True, plot_measurements_with_color=False, plot_model=True,
                   title='', color='black', fit_label='', raw_label='raw data'):
     ax.set_title(title)
@@ -116,7 +156,6 @@ def subplot_model(X, Y, X_test, Y_test, ax, plot_measurements=True, plot_measure
             ax.plot(X, Y, 'ko', markersize=1, color=color, label=raw_label)
         else:
             ax.plot(X, Y, 'ko', markersize=1, color='black', label=raw_label)
-
     if plot_model:
         ax.plot(X_test, Y_test, 'k', label=fit_label, color=color)
 
