@@ -8,7 +8,7 @@ setup(
   author = 'Nina Velikajne, Miha Moškon',
   author_email = 'nv6920@studnet.uni-lj.si, miha.moskon@fri.uni-lj.si',
   url = 'https://github.com/ninavelikajne/RhythmCount',
-  download_url = 'edit',
+  download_url = 'https://github.com/ninavelikajne/RhythmCount/archive/v1.0.tar.gz',
   keywords = ['cosinor', 'rhytmometry', 'regression', 'count data'],
   install_requires=[
           'pandas',
