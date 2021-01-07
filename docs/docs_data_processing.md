@@ -80,7 +80,7 @@ Returns:
 * `CIs (dict)` - Confidential intervals of model's parameters.
 
 ## get_best_n_components(df_results, test, model_type=None)
-Evaluates built models based on results from functions `fit_to_model()` and `fit_to_models()`. Returns the most suitable number of components.<br>
+Evaluates built models based on results from functions `fit_to_model()` and `fit_to_models()`. For comparing nested models F test is used. In case of the same number of components, non-nested models user can set the test that will be used for comparison. Returns the most suitable number of components.<br>
 
 Parameters:
 * `df_results (DataFrame)` - Results and other information of all built models. Returned from functions `fit_to_model()` and `fit_to_models()`.
@@ -95,7 +95,7 @@ Evaluates built models based on results from functions `fit_to_model()` and `fit
 
 Parameters:
 * `df_results (DataFrame)` - Results and other information of all built models. Returned from functions `fit_to_model()` and `fit_to_models()`.
-* `test (string)` - Set test that will be used to compare models. All possible: `'AIC', 'BIC', 'Vuong', 'F'`
+* `test (string)` - Set test that will be used to compare models. All possible: `'AIC', 'BIC', 'Vuong', 'F'`.
 * `n_components (int, default=None)` - If set, comparison is only made within models that have the same number of components as parameter `n_components`. All possible `'poisson', 'gen_poisson', 'zero_poisson', 'nb', 'zero_nb'`.<br>
 
 Returns:
