@@ -405,6 +405,8 @@ def compare_by_component(df, component, n_components, models_type, ax_indices, a
                                                                  precision_rate=precision_rate)
         # plot
         ax = fig.add_subplot(gs[ax_indices[i]])
+        CIs = plot.subplot_confidential_intervals(df_name, n_component, model_type, ax, repetitions=repetitions,
+                                                  maxiter=maxiter, maxfun=maxfun, period=period, method=method)
         if labels:
             plot.subplot_model(df_name['X'], df_name['Y'], best['X_test'], best['Y_test'], ax, color=colors[i],
                                plot_measurements_with_color=colors[i], fit_label=labels[name],
@@ -414,8 +416,6 @@ def compare_by_component(df, component, n_components, models_type, ax_indices, a
                                plot_measurements_with_color=colors[i], fit_label=name, raw_label='raw data\n- ' + name)
 
         best = best.to_dict()
-        CIs = plot.subplot_confidential_intervals(df_name, n_component, model_type, ax, repetitions=repetitions,
-                                                  maxiter=maxiter, maxfun=maxfun, period=period, method=method)
         CIs.columns = ['CIs_0', 'CIs_1']
         CIs = CIs.to_dict()
         best[component] = name

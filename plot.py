@@ -10,8 +10,7 @@ import matplotlib.dates as md
 
 
 def plot_model(df, model_type, n_components, title='', plot_CIs=True, repetitions=20, save_file_to='model.pdf',
-               maxiter=5000, maxfun=5000,
-               method='nm', period=24):
+               maxiter=5000, maxfun=5000, method='nm', period=24):
     rows, cols = hlp.get_factors(1)
     fig = plt.figure(figsize=(8 * cols, 8 * rows))
     gs = gridspec.GridSpec(rows, cols)
@@ -22,10 +21,10 @@ def plot_model(df, model_type, n_components, title='', plot_CIs=True, repetition
 
     # plot
     ax = fig.add_subplot(gs[0])
-    subplot_model(df['X'], df['Y'], X_test, Y_test, ax, color='blue', title=title, fit_label='fitted curve')
     if plot_CIs:
         CIs = subplot_confidential_intervals(df, n_components, model_type, ax, repetitions=repetitions, maxiter=maxiter,
                                              maxfun=maxfun, period=period, method=method)
+    subplot_model(df['X'], df['Y'], X_test, Y_test, ax, color='blue', title=title, fit_label='fitted curve')
 
     ax_list = fig.axes
     for ax in ax_list:
@@ -138,9 +137,9 @@ def subplot_confidential_intervals(df, n_components, model_type, ax, repetitions
         else:
             Y_test_CI = res2.predict(X_fit_test)
         if i == 0:
-            ax.plot(X_test, Y_test_CI, color='tomato', alpha=0.022, linewidth=0.1, label='confidential intervals')
+            ax.plot(X_test, Y_test_CI, color='tomato', alpha=0.03, linewidth=0.1, label='confidential intervals')
         else:
-            ax.plot(X_test, Y_test_CI, color='tomato', alpha=0.022, linewidth=0.1)
+            ax.plot(X_test, Y_test_CI, color='tomato', alpha=0.03, linewidth=0.1)
 
     return CIs
 
