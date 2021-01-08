@@ -1,9 +1,9 @@
 # RhythmCount
 RhythmCount presents a Python package for detection and analysis of rhythmic patterns in count data. It is composed of two modules:
 
-* [data_processing](data_processing.py): specific functions to build and compare models, clean data, calculate confidential intervals etc.
+* [data_processing](RhythmCount/data_processing.py): specific functions to build and compare models, clean data, calculate confidential intervals etc.
 
-* [plot](plot.py): specific functions for plotting (eg. plotting models, raw data)
+* [plot](RhythmCount/plot.py): specific functions for plotting (eg. plotting models, raw data)
 
 To use these modules include the following code in your python file:
 
@@ -14,7 +14,7 @@ with different regression models for count data: Poisson model, Generalized Pois
 
 Input data needs to be in required format. Data must contain X and Y columns, where X represents time and Y represents the target variable - count.
 After the data has been imported, different types of analyses can be applied. These are described in more details in the examples below and in the documentation. <br/>
-[Helpers](helpers.py) contains only functions that are called inside data_processing and plot modules. It is not meant to be used by end user.
+[Helpers](RhythmCount/helpers.py) contains only functions that are called inside data_processing and plot modules. It is not meant to be used by end user.
 
 # Installation
 RhythmCount can be installed using pip with the command:
