@@ -1,5 +1,5 @@
 # RhythmCount: documentation
-RhythmCount presents a python package for cosinor based rhythmomethry in count data. It is composed of two modules:
+RhythmCount presents a Python package for detection and analysis of rhythmic patterns in count data. It is composed of two modules:
 
 * [data_processing](docs_data_processing.md): specific functions to build and compare models, clean data, calculate confidential intervals etc.
 

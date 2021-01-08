@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 from matplotlib import gridspec
-import helpers as hlp
-import data_processing as dproc
+from RhythmCount import helpers as hlp
+from RhythmCount import data_processing as dproc
 import copy
 import random
 import numpy as np
@@ -15,16 +15,15 @@ def plot_model(df, model_type, n_components, title='', plot_CIs=True, repetition
     fig = plt.figure(figsize=(8 * cols, 8 * rows))
     gs = gridspec.GridSpec(rows, cols)
 
-    results, df_result, _ = dproc.fit_to_model(df, n_components, model_type, period, maxiter,
-                                                           maxfun,
-                                                           method, 0)
+    results, df_result, _ = dproc.fit_to_model(df, n_components, model_type, period, maxiter, maxfun, method, 0)
 
     # plot
     ax = fig.add_subplot(gs[0])
     if plot_CIs:
-        CIs = subplot_confidential_intervals(df, n_components, model_type, ax, repetitions=repetitions, maxiter=maxiter,
-                                             maxfun=maxfun, period=period, method=method)
-    subplot_model(df['X'], df['Y'], df_result['X_test'], df_result['Y_test'], ax, color='blue', title=title, fit_label='fitted curve')
+        CIs = subplot_confidence_intervals(df, n_components, model_type, ax, repetitions=repetitions, maxiter=maxiter,
+                                           maxfun=maxfun, period=period, method=method)
+    subplot_model(df['X'], df['Y'], df_result['X_test'], df_result['Y_test'], ax, color='blue', title=title,
+                  fit_label='fitted curve')
 
     ax_list = fig.axes
     for ax in ax_list:
@@ -43,23 +42,22 @@ def plot_model(df, model_type, n_components, title='', plot_CIs=True, repetition
         return CIs
 
 
-def plot_confidential_intervals(df, model_type, n_components, title='', repetitions=20, maxiter=5000, maxfun=5000,
-                                period=24, method='nm', save_file_to='CIs.pdf'):
+def plot_confidence_intervals(df, model_type, n_components, title='', repetitions=20, maxiter=5000, maxfun=5000,
+                              period=24, method='nm', save_file_to='CIs.pdf'):
     rows, cols = hlp.get_factors(1)
     fig = plt.figure(figsize=(8 * cols, 8 * rows))
     gs = gridspec.GridSpec(rows, cols)
 
     ax = fig.add_subplot(gs[0])
     Y = df['Y']
-    results, df_result, X_fit_test = dproc.fit_to_model(df, n_components, model_type, period,
-                                                                maxiter,
-                                                                maxfun, method, 0)
+    results, df_result, X_fit_test = dproc.fit_to_model(df, n_components, model_type, period, maxiter, maxfun, method,
+                                                        0)
 
     # CI
     res2 = copy.deepcopy(results)
     params = res2.params
-    CIs = dproc.calculate_confidential_intervals(df, n_components, model_type, repetitions, maxiter, maxfun,
-                                                 method, period)
+    CIs = dproc.calculate_confidence_intervals(df, n_components, model_type, repetitions, maxiter, maxfun, method,
+                                               period)
 
     N2 = round(10 * (0.7 ** n_components) + 4)
     P = np.zeros((len(params), N2))
@@ -82,7 +80,8 @@ def plot_confidential_intervals(df, model_type, n_components, title='', repetiti
         else:
             Y_test_CI = res2.predict(X_fit_test)
         if i == 0:
-            ax.plot(df_result['X_test'], Y_test_CI, color='tomato', alpha=0.05, linewidth=0.1, label='confidential intervals')
+            ax.plot(df_result['X_test'], Y_test_CI, color='tomato', alpha=0.05, linewidth=0.1,
+                    label='confidence intervals')
         else:
             ax.plot(df_result['X_test'], Y_test_CI, color='tomato', alpha=0.05, linewidth=0.1)
 
@@ -104,17 +103,16 @@ def plot_confidential_intervals(df, model_type, n_components, title='', repetiti
     return CIs
 
 
-def subplot_confidential_intervals(df, n_components, model_type, ax, repetitions=30, maxiter=5000, maxfun=5000,
-                                   period=24, method='nm'):
-    results, df_result, X_fit_test = dproc.fit_to_model(df, n_components, model_type, period,
-                                                                maxiter,
-                                                                maxfun, method, 0)
+def subplot_confidence_intervals(df, n_components, model_type, ax, repetitions=30, maxiter=5000, maxfun=5000, period=24,
+                                 method='nm'):
+    results, df_result, X_fit_test = dproc.fit_to_model(df, n_components, model_type, period, maxiter, maxfun, method,
+                                                        0)
 
     # CI
     res2 = copy.deepcopy(results)
     params = res2.params
-    CIs = dproc.calculate_confidential_intervals(df, n_components, model_type, repetitions, maxiter, maxfun,
-                                                 method, period)
+    CIs = dproc.calculate_confidence_intervals(df, n_components, model_type, repetitions, maxiter, maxfun, method,
+                                               period)
 
     N2 = round(10 * (0.7 ** n_components) + 4)
     P = np.zeros((len(params), N2))
@@ -137,7 +135,7 @@ def subplot_confidential_intervals(df, n_components, model_type, ax, repetitions
         else:
             Y_test_CI = res2.predict(X_fit_test)
         if i == 0:
-            ax.plot(df_result['X_test'], Y_test_CI, color='tomato', alpha=0.03, linewidth=0.1, label='confidential intervals')
+            ax.plot(df_result['X_test'], Y_test_CI, color='tomato', alpha=0.03, linewidth=0.1)
         else:
             ax.plot(df_result['X_test'], Y_test_CI, color='tomato', alpha=0.03, linewidth=0.1)
 
@@ -147,7 +145,7 @@ def subplot_confidential_intervals(df, n_components, model_type, ax, repetitions
 def subplot_model(X, Y, X_test, Y_test, ax, plot_measurements=True, plot_measurements_with_color=False, plot_model=True,
                   title='', color='black', fit_label='', raw_label='raw data'):
     ax.set_title(title)
-    ax.set_xlabel('Hours [h]')
+    ax.set_xlabel('Time of day [h]')
     ax.set_ylabel('Count')
 
     if plot_measurements:
@@ -179,10 +177,9 @@ def plot_raw_data(df, title, hour_intervals, save_file_to='raw.pdf'):
     ax.xaxis.set_major_formatter(date_form)
     ax.xaxis.set_major_locator(mdates.HourLocator(interval=hour_intervals))
     plt.xticks(rotation=45)
-    plt.xlabel('days [d-m H:MIN]')
-    plt.ylabel('count')
+    plt.xlabel('Day [d-m h:min]')
+    plt.ylabel('Count')
     plt.title(title)
-
 
     fig.tight_layout()
     plt.show()
