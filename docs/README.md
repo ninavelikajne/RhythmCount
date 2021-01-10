@@ -1,7 +1,7 @@
 # RhythmCount: documentation
 RhythmCount presents a Python package for detection and analysis of rhythmic patterns in count data. It is composed of two modules:
 
-* [data_processing](docs_data_processing.md): specific functions to build and compare models, clean data, calculate confidential intervals etc.
+* [data_processing](docs_data_processing.md): specific functions to build and compare models, clean data, calculate confidence intervals etc.
 
 * [plot](docs_plot.md): specific functions for plotting (eg. plotting models, raw data)
 

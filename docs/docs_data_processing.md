@@ -56,8 +56,8 @@ Parameters:
 Returns:
 * `df_results (DataFrame)` - Results and other information of all built models. Columns: `'model_type', 'n_components', 'amplitude', 'mesor', 'peaks', 'heights', 'p', 'RSS', 'AIC', 'BIC', 'log_likelihood', 'logs', 'mean(est)', 'Y(est)', 'X_test', 'Y_test'`.
 
-## calculate_confidential_intervals(df, n_components, model_type, repetitions=20, maxiter=5000, maxfun=5000, method='nm', period=24)
-Calculates confidential intervals of model's parameters for given model.<br>
+## calculate_confidence_intervals(df, n_components, model_type, repetitions=20, maxiter=5000, maxfun=5000, method='nm', period=24)
+Calculates confidence intervals of model's parameters for given model.<br>
 
 Parameters:
 * `df (DataFrame)` - Dataframe should have two columns: X and Y.
@@ -67,11 +67,11 @@ Parameters:
 * `maxiter (int, default=5000)` - Parameter used for building a model. The maximum number of iterations to perform.
 * `maxfun (int, default=5000)` - Parameter used for building a model. Maximum number of function evaluations to make.
 * `period (int, default=24)` - Parameter for setting the period of data.
-* `repetitions (int, default=20)` - Number of repetitions for calculating confidential intervals.
+* `repetitions (int, default=20)` - Number of repetitions for calculating confidence intervals.
 <br>
 
 Returns:
-* `CIs (DataFrame)` - Confidential intervals of model's parameters.
+* `CIs (DataFrame)` - Confidence intervals of model's parameters.
 
 ## get_best_n_components(df_results, test, model_type=None)
 Evaluates all built models based on results returned from functions `fit_to_model()` and `fit_to_models()`. For comparing nested models F test is used. In case of the same number of components, non-nested models user can set the test that will be used for comparison. Returns the most suitable number of components.<br>
@@ -95,8 +95,8 @@ Parameters:
 Returns:
 * `best_row (DataFrame)` - Entry of `df_results` with the best model type.
 
-## calculate_confidential_intervals_parameters(df, n_components, model_type, all_peaks, repetitions=20, maxiter=5000, maxfun=5000, method='nm', period=24, precision_rate=2)
-Calculates confidential intervals of rhythm parameters for given model.<br>
+## calculate_confidence_intervals_parameters(df, n_components, model_type, all_peaks, repetitions=20, maxiter=5000, maxfun=5000, method='nm', period=24, precision_rate=2)
+Calculates confidence intervals of rhythm parameters for given model.<br>
 
 Parameters:
 * `df (DataFrame)` - Dataframe should have two columns: X and Y.
@@ -107,12 +107,12 @@ Parameters:
 * `maxiter (int, default=5000)` - Parameter used for building a model. The maximum number of iterations to perform.
 * `maxfun (int, default=5000)` - Parameter used for building a model. Maximum number of function evaluations to make.
 * `period (int, default=24)` - Parameter for setting the period of data.
-* `repetitions (int, default=20)` - Number of repetitions for calculating confidential intervals.
+* `repetitions (int, default=20)` - Number of repetitions for calculating confidence intervals.
 * `precision_rate (float, default=2)` - Precision in hours, minimal difference between two different peaks.
 <br>
 
 Returns:
-* `CIs (dict)` - Confidential intervals of rhythm parameters. Columns: `'amplitude_CIs', 'mesor_CIs', 'peaks_CIs', 'heights_CIs'`
+* `CIs (dict)` - Confidence intervals of rhythm parameters. Columns: `'amplitude_CIs', 'mesor_CIs', 'peaks_CIs', 'heights_CIs'`
 
 ## compare_by_component(df, component, n_components, models_type, ax_indices, ax_titles, rows=1, cols=1,labels=None, eval_order=True, maxiter=5000, maxfun=5000, method='nm', period=24, precision_rate=2, repetitions=20, test='Vuong', save_file_to='comparison.pdf')
 Compare dataset by unique values in column, with name the same name as parameter `component`. For each unique value of component new model is built and evaluated.<br>
@@ -126,7 +126,7 @@ Parameters:
 * `maxiter (int, default=5000)` - Parameter used for building a model. The maximum number of iterations to perform.
 * `maxfun (int, default=5000)` - Parameter used for building a model. Maximum number of function evaluations to make.
 * `period (int, default=24)` - Parameter for setting the period of data.
-* `repetitions (int, default=20)` - Number of repetitions for calculating confidential intervals.
+* `repetitions (int, default=20)` - Number of repetitions for calculating confidence intervals.
 * `ax_indices ([int])` - Set index of each plot. Must be the same length as the number of all unique component's values.
 * `eval_order (bool, default=True)` - Order of evaluating. When true: models are first evaluated by the number of components, then by the model type.
 * `test (string, default='Vuong')` - Test that will be used for comparison of models. All possible: `'AIC', 'BIC', 'Vuong', 'F'`.
