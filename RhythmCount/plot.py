@@ -103,7 +103,7 @@ def plot_confidence_intervals(df, model_type, n_components, title='', repetition
     return CIs
 
 
-def subplot_confidence_intervals(df, n_components, model_type, ax, repetitions=30, maxiter=5000, maxfun=5000, period=24,
+def subplot_confidence_intervals(df, n_components, model_type, ax, repetitions=20, maxiter=5000, maxfun=5000, period=24,
                                  method='nm'):
     results, df_result, X_fit_test = dproc.fit_to_model(df, n_components, model_type, period, maxiter, maxfun, method,
                                                         0)

@@ -1,20 +1,20 @@
 # RhythmCount
-RhythmCount presents a Python package for detection and analysis of rhythmic patterns in count data. It is composed of two modules:
+RhythmCount represents a Python package for detecting and analysing rhythmic patterns in count data. It consists of two modules:
 
-* [data_processing](RhythmCount/data_processing.py): specific functions to build and compare models, clean data, calculate confidence intervals etc.
+* [data_processing](RhythmCount/data_processing.py): specific functions for building and comparing models, cleaning data, calculating confidence intervals, etc.
 
-* [plot](RhythmCount/plot.py): specific functions for plotting (eg. plotting models, raw data)
+* [plot](RhythmCount/plot.py): specific functions for plotting (e.g. plotting models, raw data).
 
-To use these modules include the following code in your python file:
+To use these modules, add the following code to your Python file:
 
 `from RhythmCount import plot, data_processing` 
 
-RhythmCount can be used in a combination with different types of experimental count data. Basic RhythmCount implementation for the analysis of rhythmical count data is made with cosinor method in combination 
-with different regression models for count data: Poisson model, Generalized Poisson model, Zero-Inflated Poisson model, Negative Binomial model and Zero-Inflated Negative Binomial model.<br/>
+RhythmCount can be used in combination with various types of experimental count data. The basic implementation of the RhythmCount for analysing rhythmic count data is made with cosinor method in combination 
+with multiple regression models for count data: Poisson model, Generalized Poisson model, Zero-Inflated Poisson model, Negative Binomial model and Zero-Inflated Negative Binomial model. <br>
 
-Input data needs to be in required format. Data must contain X and Y columns, where X represents time and Y represents the target variable - count.
-After the data has been imported, different types of analyses can be applied. These are described in more details in the examples below and in the documentation. <br/>
-[Helpers](RhythmCount/helpers.py) contains only functions that are called inside data_processing and plot modules. It is not meant to be used by end user.
+The input data must be in the required format. The data must contain X and Y columns, where X represents time and Y represents the target variable - count.
+Once the data has been imported, various types of analysis can be performed. These are described more in details in the examples and documentation. <br/>
+[Helpers](RhythmCount/helpers.py) only contains functions that are called within the data_processing and plot modules. It is not intended for use by the end user.
 
 # Installation
 RhythmCount can be installed using pip with the command:
@@ -22,11 +22,11 @@ RhythmCount can be installed using pip with the command:
 `pip install RhythmCount`
 
 # Examples
-Examples are given as interactive python notebook (ipynb) files:
+Examples are provided as interactive Python notebook files (.ipynb) :
 
-* [example/traffic_example.ipynb](example/traffic_example.ipynb): analysis of traffic data
+* [example/traffic_example.ipynb](example/traffic_example.ipynb): traffic data analysis.
 
-Folder [example/results](example/results) contains plots and .csv files that have been generated when running traffic_example.ipynb.
+The [example/results](example/results) folder contains plots and .csv files generated during the traffic data analysis.
 
 # Documentation
-The documentation can be found in folder [docs](docs/README.md).
+The documentation can be found in the [docs](docs/README.md) folder.

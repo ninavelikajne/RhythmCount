@@ -191,13 +191,11 @@ def evaluate_rhythm_params(X, Y, period=24):
 
 
 def calculate_statistics(Y, Y_fit, n_components, results, model, model_type, rhythm_param):
-    # p value statistics according to Cornelissen (eqs (8) - (9))
-    MSS = sum((Y_fit - Y.mean()) ** 2)
+    # RSS
     RSS = sum((Y - Y_fit) ** 2)
-    n_params = n_components * 2 + 1
-    N = Y.size
-    F = (MSS / (n_params - 1)) / (RSS / (N - n_params))
-    p = 1 - stats.f.cdf(F, n_params - 1, N - n_params)
+
+    # p
+    p = results.llr_pvalue
 
     # AIC
     aic = results.aic
@@ -210,7 +208,7 @@ def calculate_statistics(Y, Y_fit, n_components, results, model, model_type, rhy
 
     return {'model_type': model_type, 'n_components': n_components,
             'amplitude': rhythm_param['amplitude'],
-            'mesor': rhythm_param['mesor'], 'peaks': rhythm_param['locs'], 'heights': rhythm_param['heights'], 'p': p,
+            'mesor': rhythm_param['mesor'], 'peaks': rhythm_param['locs'], 'heights': rhythm_param['heights'], 'llr_pvalue': p,
             'RSS': RSS, 'AIC': aic, 'BIC': bic,
             'log_likelihood': results.llf, 'logs': logs, 'mean(est)': Y_fit.mean(), 'Y(est)': Y_fit}
 

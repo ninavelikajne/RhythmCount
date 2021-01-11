@@ -8,7 +8,7 @@ setuptools.setup(
     version="0.1",
     author="Nina Velikajne, Miha Moškon",
     author_email="nv6920@student.uni-lj.si, miha.moskon@fri.uni-lj.si",
-    description="Python package for detection and analysis of rhythmic patterns in count data",
+    description="Python package to analyse the rhythmicity in count data",
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/ninavelikajne/RhythmCount",
