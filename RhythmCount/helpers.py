@@ -153,6 +153,6 @@ def calculate_mean_std(table_peaks, table_heights, peaks, precision_rate):
             ix = ix + 1
 
     if ix == 0:
-        return [],[]
+        return [], []
     else:
         return mean_std_p, mean_std_h

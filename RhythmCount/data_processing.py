@@ -5,7 +5,8 @@ import scipy.stats as stats
 import matplotlib.pyplot as plt
 import statsmodels
 import statsmodels.api as sm
-from matplotlib import gridspec
+from matplotlib.lines import Line2D
+
 from RhythmCount import helpers as hlp
 from RhythmCount import plot
 import math
@@ -37,7 +38,6 @@ def fit_to_models(df, models_type=models_type, n_components=n_components, maxite
     if plot_models:
         rows, cols = hlp.get_factors(len(models_type))
         fig = plt.figure(figsize=(8 * cols, 8 * rows))
-        gs = gridspec.GridSpec(rows, cols)
 
     i = 0
     for model_type in models_type:
@@ -47,7 +47,7 @@ def fit_to_models(df, models_type=models_type, n_components=n_components, maxite
 
             # plot
             if plot_models:
-                ax = fig.add_subplot(gs[i])
+                ax = plt.subplot(rows, cols, i+1)
                 title = hlp.get_model_name(model_type)
                 if c == 0:
                     plot.subplot_model(df['X'], df['Y'], df_result['X_test'], df_result['Y_test'], ax, color=colors[c],
@@ -368,8 +368,6 @@ def compare_by_component(df, component, n_components, models_type, ax_indices, a
 
     names = df[component].unique()
     fig = plt.figure(figsize=(8 * cols, 8 * rows))
-    gs = gridspec.GridSpec(rows, cols)
-
     i = 0
     for name in names:
 
@@ -394,16 +392,17 @@ def compare_by_component(df, component, n_components, models_type, ax_indices, a
                                                                method=method, period=period,
                                                                precision_rate=precision_rate)
         # plot
-        ax = fig.add_subplot(gs[ax_indices[i]])
+        ax = plt.subplot(rows, cols, ax_indices[i])
+
         CIs = plot.subplot_confidence_intervals(df_name, n_component, model_type, ax, repetitions=repetitions,
                                                 maxiter=maxiter, maxfun=maxfun, period=period, method=method)
         if labels:
             plot.subplot_model(df_name['X'], df_name['Y'], best['X_test'], best['Y_test'], ax, color=colors[i],
                                plot_measurements_with_color=colors[i], fit_label=labels[name],
-                               raw_label='raw data\n- ' + name)
+                               raw_label='raw data\n- ' + name, period=period)
         else:
             plot.subplot_model(df_name['X'], df_name['Y'], best['X_test'], best['Y_test'], ax, color=colors[i],
-                               plot_measurements_with_color=colors[i], fit_label=name, raw_label='raw data\n- ' + name)
+                               plot_measurements_with_color=colors[i], fit_label=name, raw_label='raw data\n- ' + name, period=period)
 
         best = best.to_dict()
         CIs.columns = ['CIs_model_params_0', 'CIs_model_params_1']
@@ -417,7 +416,10 @@ def compare_by_component(df, component, n_components, models_type, ax_indices, a
     ax_list = fig.axes
     i = 0
     for ax in ax_list:
-        ax.legend(loc='upper left', fontsize='large')
+        line = Line2D([0], [0], label='CIs', color='brown')
+        handles, labels = ax.get_legend_handles_labels()
+        handles.extend([line])
+        ax.legend(loc='upper left', fontsize='large', handles=handles)
         ax.set_title(ax_titles[i])
         i = i + 1
     fig.tight_layout()

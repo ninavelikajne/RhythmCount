@@ -1,5 +1,6 @@
 import matplotlib.pyplot as plt
-from matplotlib import gridspec
+from matplotlib.lines import Line2D
+
 from RhythmCount import helpers as hlp
 from RhythmCount import data_processing as dproc
 import copy
@@ -13,21 +14,24 @@ def plot_model(df, model_type, n_components, title='', plot_CIs=True, repetition
                maxiter=5000, maxfun=5000, method='nm', period=24):
     rows, cols = hlp.get_factors(1)
     fig = plt.figure(figsize=(8 * cols, 8 * rows))
-    gs = gridspec.GridSpec(rows, cols)
 
     results, df_result, _ = dproc.fit_to_model(df, n_components, model_type, period, maxiter, maxfun, method, 0)
 
     # plot
-    ax = fig.add_subplot(gs[0])
+    ax = ax = plt.subplot(rows, cols, 1)
     if plot_CIs:
         CIs = subplot_confidence_intervals(df, n_components, model_type, ax, repetitions=repetitions, maxiter=maxiter,
                                            maxfun=maxfun, period=period, method=method)
+
     subplot_model(df['X'], df['Y'], df_result['X_test'], df_result['Y_test'], ax, color='blue', title=title,
-                  fit_label='fitted curve')
+                  fit_label='fitted curve', period=period)
 
     ax_list = fig.axes
     for ax in ax_list:
-        ax.legend(loc='upper left', fontsize='large')
+        line = Line2D([0], [0], label='CIs', color='brown')
+        handles, labels = ax.get_legend_handles_labels()
+        handles.extend([line])
+        ax.legend(loc='upper left', fontsize='large', handles=handles)
     fig.tight_layout()
     plt.show()
 
@@ -46,9 +50,8 @@ def plot_confidence_intervals(df, model_type, n_components, title='', repetition
                               period=24, method='nm', save_file_to='CIs.pdf'):
     rows, cols = hlp.get_factors(1)
     fig = plt.figure(figsize=(8 * cols, 8 * rows))
-    gs = gridspec.GridSpec(rows, cols)
 
-    ax = fig.add_subplot(gs[0])
+    ax = plt.subplot(rows, cols, 1)
     Y = df['Y']
     results, df_result, X_fit_test = dproc.fit_to_model(df, n_components, model_type, period, maxiter, maxfun, method,
                                                         0)
@@ -79,17 +82,19 @@ def plot_confidence_intervals(df, model_type, n_components, title='', repetition
             Y_test_CI = res2.predict(X_fit_test, exog_infl=X_fit_test)
         else:
             Y_test_CI = res2.predict(X_fit_test)
-        if i == 0:
-            ax.plot(df_result['X_test'], Y_test_CI, color='tomato', alpha=0.05, linewidth=0.1,
-                    label='confidence intervals')
-        else:
-            ax.plot(df_result['X_test'], Y_test_CI, color='tomato', alpha=0.05, linewidth=0.1)
 
-    subplot_model(df['X'], Y, df_result['X_test'], df_result['Y_test'], ax, title=title, plot_model=False)
+        ax.plot(df_result['X_test'], Y_test_CI, color='brown', alpha=0.05, linewidth=0.1)
+
+    subplot_model(df['X'], Y, df_result['X_test'], df_result['Y_test'], ax, title=title, plot_model=False,
+                  period=period)
 
     ax_list = fig.axes
+    print(len(ax_list))
     for ax in ax_list:
-        ax.legend(loc='upper left', fontsize='large')
+        line = Line2D([0], [0], label='CIs', color='brown')
+        handles, labels = ax.get_legend_handles_labels()
+        handles.extend([line])
+        ax.legend(loc='upper left', fontsize='large', handles=handles)
     fig.tight_layout()
     plt.show()
 
@@ -135,28 +140,28 @@ def subplot_confidence_intervals(df, n_components, model_type, ax, repetitions=2
         else:
             Y_test_CI = res2.predict(X_fit_test)
         if i == 0:
-            ax.plot(df_result['X_test'], Y_test_CI, color='tomato', alpha=0.03, linewidth=0.1)
+            ax.plot(df_result['X_test'], Y_test_CI, color='brown', alpha=0.03, linewidth=0.1)
         else:
-            ax.plot(df_result['X_test'], Y_test_CI, color='tomato', alpha=0.03, linewidth=0.1)
+            ax.plot(df_result['X_test'], Y_test_CI, color='brown', alpha=0.03, linewidth=0.1)
 
     return CIs
 
 
 def subplot_model(X, Y, X_test, Y_test, ax, plot_measurements=True, plot_measurements_with_color=False, plot_model=True,
-                  title='', color='black', fit_label='', raw_label='raw data'):
+                  title='', color='black', fit_label='', period=24, raw_label='raw data'):
     ax.set_title(title)
     ax.set_xlabel('Time of day [h]')
     ax.set_ylabel('Count')
 
     if plot_measurements:
         if plot_measurements_with_color:
-            ax.plot(X, Y, 'ko', markersize=1, color=color, label=raw_label)
+            ax.plot(X, Y, '.', markersize=1, color=color, label=raw_label)
         else:
-            ax.plot(X, Y, 'ko', markersize=1, color='black', label=raw_label)
+            ax.plot(X, Y, '.', markersize=1, color='black', label=raw_label)
     if plot_model:
-        ax.plot(X_test, Y_test, 'k', label=fit_label, color=color)
+        ax.plot(X_test, Y_test, label=fit_label, color=color)
 
-    ax.set_xlim(0, 23)
+    ax.set_xlim(0, period - 1)
 
     return ax
 
@@ -164,13 +169,12 @@ def subplot_model(X, Y, X_test, Y_test, ax, plot_measurements=True, plot_measure
 def plot_raw_data(df, title, hour_intervals, save_file_to='raw.pdf'):
     rows, cols = hlp.get_factors(1)
     fig = plt.figure(figsize=(8 * cols, 8 * rows))
-    gs = gridspec.GridSpec(rows, cols)
 
     var = df[['Y']].to_numpy().var()
     mean = df[['Y']].to_numpy().mean()
     print(title, " Var: ", var, " Mean: ", mean)
 
-    ax = fig.add_subplot(gs[0])
+    ax = plt.subplot(rows, cols, 1)
     ax.scatter(df.date.head(500), df.Y.head(500), c='blue', s=1)
 
     date_form = md.DateFormatter("%d-%m %H:00")

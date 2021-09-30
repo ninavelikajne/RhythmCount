@@ -125,7 +125,7 @@ Parameters:
 * `maxfun (int)` - Parameter used to build a model. Maximum number of function evaluations that will be performed.
 * `period (int)` - Parameter used to set the period.
 * `repetitions (int, default=20)` - Number of repetitions for the confidence interval calculation (the bootstrap method).
-* `ax_indices ([int])` - Sets the index of each plot. Must be the same length as the number of all unique values of the column.
+* `ax_indices ([int])` - Sets the index of each plot. Must be the same length as the number of all unique values of the column. Starting with 1.
 * `eval_order (bool, default=True)` - Order of evaluation. If true: models are evaluated first by the number of components and then by the model type.
 * `test (string, default='Vuong')` - Test used to compare the models. All possible: `'AIC', 'BIC', 'Vuong', 'F'`.
 * `precision_rate (float, default=2)` - Precision in hours, minimum difference between two different peak values.
