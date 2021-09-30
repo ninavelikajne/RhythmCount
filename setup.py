@@ -15,12 +15,12 @@ setuptools.setup(
     packages=setuptools.find_packages(),
     keywords = ['cosinor', 'rhytmometry', 'regression', 'count data'],
     install_requires=[
-          'pandas',
-          'numpy',
-          'matplotlib',
-          'statsmodels',
-          'scipy'
-      ],
+        'pandas',
+        'numpy',
+        'matplotlib',
+        'statsmodels',
+        'scipy'
+    ],
     classifiers=[
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: MIT License",
