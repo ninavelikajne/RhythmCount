@@ -10,17 +10,17 @@ import matplotlib.dates as mdates
 import matplotlib.dates as md
 
 
-def plot_model(df, model_type, n_components, title='', plot_CIs=True, repetitions=20, save_file_to='model.pdf',
+def plot_model(df, count_model, n_components, title='', plot_CIs=True, repetitions=20, save_file_to='model.pdf',
                maxiter=5000, maxfun=5000, method='nm', period=24):
     rows, cols = hlp.get_factors(1)
     fig = plt.figure(figsize=(8 * cols, 8 * rows))
 
-    results, df_result, _ = dproc.fit_to_model(df, n_components, model_type, period, maxiter, maxfun, method, 0)
+    results, df_result, _ = dproc.fit_to_model(df, n_components, count_model, period, maxiter, maxfun, method, 0)
 
     # plot
     ax = ax = plt.subplot(rows, cols, 1)
     if plot_CIs:
-        CIs = subplot_confidence_intervals(df, n_components, model_type, ax, repetitions=repetitions, maxiter=maxiter,
+        CIs = subplot_confidence_intervals(df, n_components, count_model, ax, repetitions=repetitions, maxiter=maxiter,
                                            maxfun=maxfun, period=period, method=method)
 
     subplot_model(df['X'], df['Y'], df_result['X_test'], df_result['Y_test'], ax, color='blue', title=title,
@@ -46,20 +46,20 @@ def plot_model(df, model_type, n_components, title='', plot_CIs=True, repetition
         return CIs
 
 
-def plot_confidence_intervals(df, model_type, n_components, title='', repetitions=20, maxiter=5000, maxfun=5000,
+def plot_confidence_intervals(df, count_model, n_components, title='', repetitions=20, maxiter=5000, maxfun=5000,
                               period=24, method='nm', save_file_to='CIs.pdf'):
     rows, cols = hlp.get_factors(1)
     fig = plt.figure(figsize=(8 * cols, 8 * rows))
 
     ax = plt.subplot(rows, cols, 1)
     Y = df['Y']
-    results, df_result, X_fit_test = dproc.fit_to_model(df, n_components, model_type, period, maxiter, maxfun, method,
+    results, df_result, X_fit_test = dproc.fit_to_model(df, n_components, count_model, period, maxiter, maxfun, method,
                                                         0)
 
     # CI
     res2 = copy.deepcopy(results)
     params = res2.params
-    CIs = dproc.calculate_confidence_intervals(df, n_components, model_type, repetitions, maxiter, maxfun, method,
+    CIs = dproc.calculate_confidence_intervals(df, n_components, count_model, repetitions, maxiter, maxfun, method,
                                                period)
 
     N2 = round(10 * (0.7 ** n_components) + 4)
@@ -78,7 +78,7 @@ def plot_confidence_intervals(df, model_type, n_components, title='', repetition
         j = random.randint(0, size)
         p = param_samples.entry_at(j)
         res2.initialize(results.model, p)
-        if model_type == 'zero_nb' or model_type == "zero_poisson":
+        if count_model == 'zero_nb' or count_model == "zero_poisson":
             Y_test_CI = res2.predict(X_fit_test, exog_infl=X_fit_test)
         else:
             Y_test_CI = res2.predict(X_fit_test)
@@ -108,15 +108,15 @@ def plot_confidence_intervals(df, model_type, n_components, title='', repetition
     return CIs
 
 
-def subplot_confidence_intervals(df, n_components, model_type, ax, repetitions=20, maxiter=5000, maxfun=5000, period=24,
+def subplot_confidence_intervals(df, n_components, count_model, ax, repetitions=20, maxiter=5000, maxfun=5000, period=24,
                                  method='nm'):
-    results, df_result, X_fit_test = dproc.fit_to_model(df, n_components, model_type, period, maxiter, maxfun, method,
+    results, df_result, X_fit_test = dproc.fit_to_model(df, n_components, count_model, period, maxiter, maxfun, method,
                                                         0)
 
     # CI
     res2 = copy.deepcopy(results)
     params = res2.params
-    CIs = dproc.calculate_confidence_intervals(df, n_components, model_type, repetitions, maxiter, maxfun, method,
+    CIs = dproc.calculate_confidence_intervals(df, n_components, count_model, repetitions, maxiter, maxfun, method,
                                                period)
 
     N2 = round(10 * (0.7 ** n_components) + 4)
@@ -135,7 +135,7 @@ def subplot_confidence_intervals(df, n_components, model_type, ax, repetitions=2
         j = random.randint(0, size)
         p = param_samples.entry_at(j)
         res2.initialize(results.model, p)
-        if model_type == 'zero_nb' or model_type == "zero_poisson":
+        if count_model == 'zero_nb' or count_model == "zero_poisson":
             Y_test_CI = res2.predict(X_fit_test, exog_infl=X_fit_test)
         else:
             Y_test_CI = res2.predict(X_fit_test)

@@ -62,7 +62,7 @@ def make_results_dir():
         os.makedirs(final_directory, access_rights)
 
 
-def get_model_name(model_type):
+def get_model_name(count_model):
     names = dict({
         "poisson": "Poisson Model",
         "nb": "Negative Binomial Model",
@@ -70,7 +70,7 @@ def get_model_name(model_type):
         "zero_nb": "Zero-Inflated Negative Binomial Model",
         "zero_poisson": "Zero-Inflated Poisson Model"
     })
-    return names[model_type]
+    return names[count_model]
 
 
 def phase_to_radians(phase, period=24):

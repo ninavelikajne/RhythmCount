@@ -12,7 +12,7 @@ from RhythmCount import plot
 import math
 
 colors = ['blue', 'green', 'orange', 'red', 'purple', 'olive', 'tomato', 'yellow', 'pink', 'turquoise', 'lightgreen']
-models_type = ['poisson', 'zero_poisson', 'gen_poisson', 'nb', 'zero_nb']
+count_models = ['poisson', 'zero_poisson', 'gen_poisson', 'nb', 'zero_nb']
 n_components = [1, 2, 3, 4]
 
 
@@ -31,24 +31,24 @@ def clean_data(df):
     return df
 
 
-def fit_to_models(df, models_type=models_type, n_components=n_components, maxiter=5000, maxfun=5000, disp=0,
+def fit_to_models(df, count_models=count_models, n_components=n_components, maxiter=5000, maxfun=5000, disp=0,
                   method='nm', plot_models=True, period=24, save_file_to='models.pdf'):
     df_results = pd.DataFrame()
 
     if plot_models:
-        rows, cols = hlp.get_factors(len(models_type))
+        rows, cols = hlp.get_factors(len(count_models))
         fig = plt.figure(figsize=(8 * cols, 8 * rows))
 
     i = 0
-    for model_type in models_type:
+    for count_model in count_models:
         c = 0
         for n_component in n_components:
-            _, df_result, _ = fit_to_model(df, n_component, model_type, period, maxiter, maxfun, method, disp)
+            _, df_result, _ = fit_to_model(df, n_component, count_model, period, maxiter, maxfun, method, disp)
 
             # plot
             if plot_models:
                 ax = plt.subplot(rows, cols, i+1)
-                title = hlp.get_model_name(model_type)
+                title = hlp.get_model_name(count_model)
                 if c == 0:
                     plot.subplot_model(df['X'], df['Y'], df_result['X_test'], df_result['Y_test'], ax, color=colors[c],
                                        title=title, fit_label='N=' + str(n_component))
@@ -79,7 +79,7 @@ def fit_to_models(df, models_type=models_type, n_components=n_components, maxite
     return df_results
 
 
-def cosinor(X, n_components, period=24):
+def cosinor_generate_independents(X, n_components, period=24):
     X_test = np.linspace(0, 100, 1000)
 
     for i in range(n_components):
@@ -102,34 +102,34 @@ def cosinor(X, n_components, period=24):
     return X_fit, X_test, X_fit_test, X_fit_eval_params
 
 
-def fit_to_model(df, n_components, model_type, period, maxiter, maxfun, method, disp):
-    X_fit, X_test, X_fit_test, X_fit_eval_params = cosinor(df['X'], n_components=n_components, period=period)
+def fit_to_model(df, n_components, count_model, period, maxiter, maxfun, method, disp):
+    X_fit, X_test, X_fit_test, X_fit_eval_params = cosinor_generate_independents(df['X'], n_components=n_components, period=period)
     Y = df['Y'].to_numpy()
 
     X_fit = sm.add_constant(X_fit, has_constant='add')
     X_fit_test = sm.add_constant(X_fit_test, has_constant='add')
     X_fit_eval_params = sm.add_constant(X_fit_eval_params, has_constant='add')
 
-    if model_type == 'poisson':
+    if count_model == 'poisson':
         model = statsmodels.discrete.discrete_model.Poisson(Y, X_fit)
         results = model.fit(maxiter=maxiter, maxfun=maxfun, method=method, disp=disp)
-    elif model_type == 'gen_poisson':
+    elif count_model == 'gen_poisson':
         model = statsmodels.discrete.discrete_model.GeneralizedPoisson(Y, X_fit, p=1)
         results = model.fit(maxiter=maxiter, maxfun=maxfun, method=method, disp=disp)
-    elif model_type == 'zero_poisson':
+    elif count_model == 'zero_poisson':
         model = statsmodels.discrete.count_model.ZeroInflatedPoisson(endog=Y, exog=X_fit, exog_infl=X_fit)
         results = model.fit(maxiter=maxiter, maxfun=maxfun, skip_hessian=True, method=method, disp=disp)
-    elif model_type == 'zero_nb':
+    elif count_model == 'zero_nb':
         model = statsmodels.discrete.count_model.ZeroInflatedNegativeBinomialP(endog=Y, exog=X_fit, exog_infl=X_fit,
                                                                                p=1)
         results = model.fit(maxiter=maxiter, maxfun=maxfun, skip_hessian=True, method=method, disp=disp)
-    elif model_type == 'nb':
+    elif count_model == 'nb':
         model = statsmodels.discrete.discrete_model.NegativeBinomialP(Y, X_fit, p=1)
         results = model.fit(maxiter=maxiter, maxfun=maxfun, method=method, disp=disp)
     else:
         raise Exception("Invalid model type.")
 
-    if model_type == 'zero_nb' or model_type == "zero_poisson":
+    if count_model == 'zero_nb' or count_model == "zero_poisson":
         Y_test = results.predict(X_fit_test, exog_infl=X_fit_test)
         Y_eval_params = results.predict(X_fit_eval_params, exog_infl=X_fit_eval_params)
         Y_fit = results.predict(X_fit, exog_infl=X_fit)
@@ -139,19 +139,19 @@ def fit_to_model(df, n_components, model_type, period, maxiter, maxfun, method, 
         Y_fit = results.predict(X_fit)
 
     rhythm_params = evaluate_rhythm_params(X_test, Y_eval_params)
-    df_result = calculate_statistics(Y, Y_fit, n_components, results, model, model_type, rhythm_params)
+    df_result = calculate_statistics(Y, Y_fit, n_components, results, model, count_model, rhythm_params)
     df_result.update({'X_test': X_test})
     df_result.update({'Y_test': Y_test})
 
     return results, df_result, X_fit_test
 
 
-def calculate_confidence_intervals(df, n_components, model_type, repetitions=20, maxiter=5000, maxfun=5000, method='nm',
+def calculate_confidence_intervals(df, n_components, count_model, repetitions=20, maxiter=5000, maxfun=5000, method='nm',
                                    period=24):
     sample_size = round(df.shape[0] - df.shape[0] / 3)
     for i in range(0, repetitions):
         sample = df.sample(sample_size)
-        results, _, _ = fit_to_model(sample, n_components, model_type, period, maxiter, maxfun, method, 0)
+        results, _, _ = fit_to_model(sample, n_components, count_model, period, maxiter, maxfun, method, 0)
         if i == 0:
             save = pd.DataFrame({str(i): results.params})
         else:
@@ -190,7 +190,7 @@ def evaluate_rhythm_params(X, Y, period=24):
     return result
 
 
-def calculate_statistics(Y, Y_fit, n_components, results, model, model_type, rhythm_param):
+def calculate_statistics(Y, Y_fit, n_components, results, model, count_model, rhythm_param):
     # RSS
     RSS = sum((Y - Y_fit) ** 2)
 
@@ -206,16 +206,16 @@ def calculate_statistics(Y, Y_fit, n_components, results, model, model_type, rhy
     # llf for each observation
     logs = model.loglikeobs(results.params)
 
-    return {'model_type': model_type, 'n_components': n_components,
+    return {'count_model': count_model, 'n_components': n_components,
             'amplitude': rhythm_param['amplitude'],
             'mesor': rhythm_param['mesor'], 'peaks': rhythm_param['locs'], 'heights': rhythm_param['heights'], 'llr_pvalue': p,
             'RSS': RSS, 'AIC': aic, 'BIC': bic,
             'log_likelihood': results.llf, 'logs': logs, 'mean(est)': Y_fit.mean(), 'Y(est)': Y_fit}
 
 
-def get_best_n_components(df_results, test, model_type=None):
-    if model_type:
-        df_results = df_results[df_results['model_type'] == model_type].copy()
+def get_best_n_components(df_results, test, count_model=None):
+    if count_model:
+        df_results = df_results[df_results['count_model'] == count_model].copy()
 
     df_results = df_results.sort_values(by='n_components')
 
@@ -238,11 +238,11 @@ def get_best_n_components(df_results, test, model_type=None):
     return best_row
 
 
-def get_best_model_type(df_results, test, n_components=None):
+def get_best_count_model(df_results, test, n_components=None):
     if n_components:
         df_results = df_results[df_results['n_components'] == n_components].copy()
 
-    df_results = df_results.sort_values(by='model_type')
+    df_results = df_results.sort_values(by='count_model')
     i = 0
     for index, new_row in df_results.iterrows():
         if i == 0:
@@ -311,12 +311,12 @@ def f_test(first_row, second_row):
     return first_row
 
 
-def calculate_confidence_intervals_parameters(df, n_components, model_type, all_peaks, repetitions=20, maxiter=5000,
+def calculate_confidence_intervals_parameters(df, n_components, count_model, all_peaks, repetitions=20, maxiter=5000,
                                               maxfun=5000, method='nm', period=24, precision_rate=2):
     sample_size = round(df.shape[0] - df.shape[0] / 3)
     for i in range(0, repetitions):
         sample = df.sample(sample_size)
-        _, df_result, _ = fit_to_model(sample, n_components, model_type, period, maxiter, maxfun, method, 0)
+        _, df_result, _ = fit_to_model(sample, n_components, count_model, period, maxiter, maxfun, method, 0)
         if i == 0:
             amplitude = np.array(df_result['amplitude'])
             mesor = np.array(df_result['mesor'])
@@ -361,7 +361,7 @@ def calculate_confidence_intervals_parameters(df, n_components, model_type, all_
             'peaks_CIs': np.around(peaks, decimals=2), 'heights_CIs': np.around(heights, decimals=2)}
 
 
-def compare_by_component(df, component, n_components, models_type, ax_indices, ax_titles, rows=1, cols=1, labels=None,
+def compare_by_component(df, component, n_components, count_models, ax_indices, ax_titles, rows=1, cols=1, labels=None,
                          eval_order=True, maxiter=5000, maxfun=5000, method='nm', period=24, precision_rate=2,
                          repetitions=20, test='Vuong', save_file_to='comparison.pdf'):
     df_results = pd.DataFrame()
@@ -374,27 +374,27 @@ def compare_by_component(df, component, n_components, models_type, ax_indices, a
         df_name = df[df[component] == name]
 
         # fit
-        results = fit_to_models(df_name, models_type, n_components, plot_models=False)
+        results = fit_to_models(df_name, count_models, n_components, plot_models=False)
 
         # compare
         if eval_order:
             best_component = get_best_n_components(results, test)
-            best = get_best_model_type(results, test, n_components=best_component['n_components'])
+            best = get_best_count_model(results, test, n_components=best_component['n_components'])
         else:
-            best_model_type = get_best_model_type(df_results, test)
-            best = get_best_n_components(df_results, test, model_type=best_model_type['model_type'])
+            best_count_model = get_best_count_model(df_results, test)
+            best = get_best_n_components(df_results, test, count_model=best_count_model['count_model'])
 
-        model_type = best.model_type
+        count_model = best.count_model
         n_component = int(best.n_components)
 
-        CIs_params = calculate_confidence_intervals_parameters(df_name, n_component, model_type, best['peaks'],
+        CIs_params = calculate_confidence_intervals_parameters(df_name, n_component, count_model, best['peaks'],
                                                                repetitions=repetitions, maxiter=maxiter, maxfun=maxfun,
                                                                method=method, period=period,
                                                                precision_rate=precision_rate)
         # plot
         ax = plt.subplot(rows, cols, ax_indices[i])
 
-        CIs = plot.subplot_confidence_intervals(df_name, n_component, model_type, ax, repetitions=repetitions,
+        CIs = plot.subplot_confidence_intervals(df_name, n_component, count_model, ax, repetitions=repetitions,
                                                 maxiter=maxiter, maxfun=maxfun, period=period, method=method)
         if labels:
             plot.subplot_model(df_name['X'], df_name['Y'], best['X_test'], best['Y_test'], ax, color=colors[i],

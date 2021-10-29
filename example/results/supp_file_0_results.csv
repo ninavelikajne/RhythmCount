@@ -1,4 +1,4 @@
-,model_type,n_components,amplitude,mesor,peaks,heights,llr_pvalue,RSS,AIC,BIC,log_likelihood,logs,mean(est),Y(est),X_test,Y_test
+,count_model,n_components,amplitude,mesor,peaks,heights,llr_pvalue,RSS,AIC,BIC,log_likelihood,logs,mean(est),Y(est),X_test,Y_test
 0,poisson,1.0,2310.54,3499.23,[12.91],[5809.77],0.0,6362618946.703252,2203994.6633545477,2204014.3239299096,-1101994.3316772738,"[-144.59713541 -173.53495101 -391.19228218 ...  -88.62020995 -393.89266944
  -277.602131  ]",3057.6206199158655,"[1188.83472007 1226.12940894 1332.02797406 ... 2667.4064481  5675.96050934
  5808.99418968]","[  0.           0.1001001    0.2002002    0.3003003    0.4004004

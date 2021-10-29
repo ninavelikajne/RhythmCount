@@ -9,7 +9,7 @@ Parameters:
 Returns:
 * `df (DataFrame)` - Cleaned dataframe.
 
-## cosinor(X, n_components, period=24)
+## cosinor_generate_independents(X, n_components, period=24)
 Executes the cosinor method on the given data. <br>
 Parameters:
 * `X (Series)` - Independent variable (time).
@@ -21,12 +21,12 @@ Returns:
 * `X_fit_test (ndarray)` - X_test values after applying the cosinor method.
 * `X_fit_eval_params (ndarray)` - X_test values after applying the cosinor method. Used for estimation of rhythm parameters.
 
-## fit_to_model(df, n_components, model_type, period, maxiter, maxfun, method, disp)
-The function calls the `cosinor()` function and builds a regression model. <br>
+## fit_to_model(df, n_components, coun, period, maxiter, maxfun, method, disp)
+The function calls the `cosinor_generate_independents()` function and builds a regression model. <br>
 Parameters:
 * `df (DataFrame)` - Dataframe should have two columns: X and Y.
 * `n_components (int)` - Number of components.
-* `model_type (string)` - Type of regression model.  All possible `'poisson', 'gen_poisson', 'zero_poisson', 'nb', 'zero_nb'`.
+* `count_model (string)` - Type of regression model.  All possible `'poisson', 'gen_poisson', 'zero_poisson', 'nb', 'zero_nb'`.
 * `method (string)` - Optimization method used to build a model. More in the [statsmodels](https://www.statsmodels.org/stable/generated/statsmodels.discrete.discrete_model.Logit.fit.html) library.
 * `maxiter (int)` - Parameter used to build a model. The maximum number of iterations that will be performed.
 * `maxfun (int)` - Parameter used to build a model. Maximum number of function evaluations that will be performed.
@@ -34,7 +34,7 @@ Parameters:
 * `disp (int)` - Set to True to print convergence messages. <br>
 Returns:
 * `results (ResultsWrapper)` - Fitted model from statsmodels.
-* `df_result (DataFrame)` - Calculated statistics and other results. Columns: `'model_type', 'n_components', 'amplitude', 'mesor', 'peaks', 'heights', 'llr_pvalue', 'RSS', 'AIC', 'BIC', 'log_likelihood', 'logs', 'mean(est)', 'Y(est)', 'X_test', 'Y_test'`.
+* `df_result (DataFrame)` - Calculated statistics and other results. Columns: `'count_model', 'n_components', 'amplitude', 'mesor', 'peaks', 'heights', 'llr_pvalue', 'RSS', 'AIC', 'BIC', 'log_likelihood', 'logs', 'mean(est)', 'Y(est)', 'X_test', 'Y_test'`.
 * `X_fit_test` - X values after applying the cosinor method for testing purposes.
 
 ## fit_to_models(df, models_type=['poisson', 'zero_poisson', 'gen_poisson', 'nb', 'zero_nb'], n_components=[1, 2, 3, 4], maxiter=5000, maxfun=5000, disp=0, method='nm', plot_models=True, period=24, save_file_to='models.pdf')
@@ -43,7 +43,7 @@ Builds multiple models and plots them. Calls the `fit_to_model()` function. <br>
 Parameters:
 * `df (DataFrame)` - Dataframe should have two columns: X and Y.
 * `n_components (int)` - Number of components.
-* `model_type (string)` - Type of regression model.  All possible `'poisson', 'gen_poisson', 'zero_poisson', 'nb', 'zero_nb'`.
+* `count_model (string)` - Type of regression model.  All possible `'poisson', 'gen_poisson', 'zero_poisson', 'nb', 'zero_nb'`.
 * `method (string)` - Optimization method used to build a model. More in the [statsmodels](https://www.statsmodels.org/stable/generated/statsmodels.discrete.discrete_model.Logit.fit.html) library.
 * `maxiter (int)` - Parameter used to build a model. The maximum number of iterations that will be performed.
 * `maxfun (int)` - Parameter used to build a model. Maximum number of function evaluations that will be performed.
@@ -54,15 +54,15 @@ Parameters:
 
 
 Returns:
-* `df_results (DataFrame)` - Results and other information of all built models. Columns: `'model_type', 'n_components', 'amplitude', 'mesor', 'peaks', 'heights', 'llr_pvalue', 'RSS', 'AIC', 'BIC', 'log_likelihood', 'logs', 'mean(est)', 'Y(est)', 'X_test', 'Y_test'`.
+* `df_results (DataFrame)` - Results and other information of all built models. Columns: `'count_model', 'n_components', 'amplitude', 'mesor', 'peaks', 'heights', 'llr_pvalue', 'RSS', 'AIC', 'BIC', 'log_likelihood', 'logs', 'mean(est)', 'Y(est)', 'X_test', 'Y_test'`.
 
-## calculate_confidence_intervals(df, n_components, model_type, repetitions=20, maxiter=5000, maxfun=5000, method='nm', period=24)
+## calculate_confidence_intervals(df, n_components, count_model, repetitions=20, maxiter=5000, maxfun=5000, method='nm', period=24)
 Calculates confidence intervals of the model's parameters for the given model. <br>
 
 Parameters:
 * `df (DataFrame)` - Dataframe should have two columns: X and Y.
 * `n_components (int)` - Number of components.
-* `model_type (string)` - Type of regression model.  All possible `'poisson', 'gen_poisson', 'zero_poisson', 'nb', 'zero_nb'`.
+* `count_model (string)` - Type of regression model.  All possible `'poisson', 'gen_poisson', 'zero_poisson', 'nb', 'zero_nb'`.
 * `method (string)` - Optimization method used to build a model. More in the [statsmodels](https://www.statsmodels.org/stable/generated/statsmodels.discrete.discrete_model.Logit.fit.html) library.
 * `maxiter (int)` - Parameter used to build a model. The maximum number of iterations that will be performed.
 * `maxfun (int)` - Parameter used to build a model. Maximum number of function evaluations that will be performed.
@@ -72,18 +72,18 @@ Parameters:
 Returns:
 * `CIs (DataFrame)` - Confidence intervals of the parameters of the model.
 
-## get_best_n_components(df_results, test, model_type=None)
+## get_best_n_components(df_results, test, count_model=None)
 Evaluates all built models based on the results returned by the `fit_to_model()` or `fit_to_models()` functions. F test is used to compare nested models. For the same number of components, non-nested models, the user can specify the test used for comparison. Returns the most appropriate number of components. <br>
 
 Parameters:
 * `df_results (DataFrame)` - Results and other information from all built models. Returned by the `fit_to_model()` or `fit_to_models()` functions.
 * `test (string)` - Test used to compare non-nested models. All possible: `'AIC', 'BIC', 'Vuong'`.
-* `model_type (string, default=None)` - If set, the comparison will be performed within models that are of the same type as the `model_type` parameter. All possible `'poisson', 'gen_poisson', 'zero_poisson', 'nb', 'zero_nb'`. <br>
+* `count_model (string, default=None)` - If set, the comparison will be performed within models that are of the same type as the `count_model` parameter. All possible `'poisson', 'gen_poisson', 'zero_poisson', 'nb', 'zero_nb'`. <br>
 
 Returns:
 * `best_row (DataFrame)` - Entry of `df_results` with the best number of components.
 
-## get_best_model_type(df_results, test, n_components=None)
+## get_best_count_model(df_results, test, n_components=None)
 Evaluates all built models based on the results returned by the `fit_to_model()` or `fit_to_models()` functions. Returns the most suitable model type. <br>
 
 Parameters:
@@ -94,13 +94,13 @@ Parameters:
 Returns:
 * `best_row (DataFrame)` - Entry of `df_results` with the best model type.
 
-## calculate_confidence_intervals_parameters(df, n_components, model_type, all_peaks, repetitions=20, maxiter=5000, maxfun=5000, method='nm', period=24, precision_rate=2)
+## calculate_confidence_intervals_parameters(df, n_components, count_model, all_peaks, repetitions=20, maxiter=5000, maxfun=5000, method='nm', period=24, precision_rate=2)
 Calculates confidence intervals of the rhythm parameters for the given model. <br>
 
 Parameters:
 * `df (DataFrame)` - Dataframe should have two columns: X and Y.
 * `n_components (int)` - Number of components.
-* `model_type (string)` - Regression model.  All possible `'poisson', 'gen_poisson', 'zero_poisson', 'nb', 'zero_nb'`.
+* `count_model (string)` - Regression model.  All possible `'poisson', 'gen_poisson', 'zero_poisson', 'nb', 'zero_nb'`.
 * `all_peaks ([float])` - Peaks detected during model building - `df_result['peaks']`. `df_result` is returned by the `fit_to_model()` or `fit_to_models()` functions.
 * `method (string)` - Optimization method used to build a model. More in the [statsmodels](https://www.statsmodels.org/stable/generated/statsmodels.discrete.discrete_model.Logit.fit.html) library.
 * `maxiter (int)` - Parameter used to build a model. The maximum number of iterations that will be performed.
@@ -118,7 +118,7 @@ Compares the data for unique values in the column named as the `component` param
 Parameters:
 * `df (DataFrame)` - Dataframe should have two columns X, Y and one additional column with the same name as parameter `component`.
 * `n_components ([int])` - Numbers of components.
-* `model_type ([string])` - Regression models.  All possible `'poisson', 'gen_poisson', 'zero_poisson', 'nb', 'zero_nb'`.
+* `count_model ([string])` - Regression models.  All possible `'poisson', 'gen_poisson', 'zero_poisson', 'nb', 'zero_nb'`.
 * `component (string)` - Name of the column by which the data will be split. 
 * `method (string)` - Optimization method used to build a model. More in the [statsmodels](https://www.statsmodels.org/stable/generated/statsmodels.discrete.discrete_model.Logit.fit.html) library.
 * `maxiter (int)` - Parameter used to build a model. The maximum number of iterations that will be performed.
@@ -136,4 +136,4 @@ Parameters:
 * `save_file_to (string, default='comparison.pdf')` - File name to save the plot. Will be saved in the results directory. If the directory does not exist, one will be created. <br>
 
 Returns:
-* `df_results (DataFrame)` - Results and other information of all built models. Columns: `component, 'model_type', 'n_components', 'amplitude', 'mesor', 'peaks', 'heights', 'llr_pvalue', 'RSS', 'AIC', 'BIC', 'log_likelihood', 'logs', 'mean(est)', 'Y(est)', 'X_test', 'Y_test', 'CIs_model_params_0', 'CIs_model_params_1', amplitude_CIs', 'mesor_CIs', 'peaks_CIs', 'heights_CIs'`.
+* `df_results (DataFrame)` - Results and other information of all built models. Columns: `component, 'count_model', 'n_components', 'amplitude', 'mesor', 'peaks', 'heights', 'llr_pvalue', 'RSS', 'AIC', 'BIC', 'log_likelihood', 'logs', 'mean(est)', 'Y(est)', 'X_test', 'Y_test', 'CIs_model_params_0', 'CIs_model_params_1', amplitude_CIs', 'mesor_CIs', 'peaks_CIs', 'heights_CIs'`.

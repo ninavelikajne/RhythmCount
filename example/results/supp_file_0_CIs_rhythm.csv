@@ -1,13 +1,13 @@
 ,0
-model_type,gen_poisson
+count_model,gen_poisson
 n_components,7.0
 amplitude,2522.03
 mesor,3040.32
 peaks,[ 7.11 15.32]
 heights,[4508.6  5562.35]
-amplitude_CIs,[2479.32 2566.43]
-mesor_CIs,[2997.59 3082.36]
-peaks_CIs,"[[ 7.05  7.21]
- [15.21 15.4 ]]"
-heights_CIs,"[[4350.24 4673.62]
- [5477.7  5647.99]]"
+amplitude_CIs,[2481.98 2557.32]
+mesor_CIs,[3004.45 3067.59]
+peaks_CIs,"[[ 6.97  7.27]
+ [15.2  15.42]]"
+heights_CIs,"[[4413.   4643.  ]
+ [5487.65 5623.69]]"
