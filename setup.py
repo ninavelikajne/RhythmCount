@@ -5,7 +5,7 @@ with open("PyPi.md", "r", encoding="utf-8") as fh:
 
 setuptools.setup(
     name="RhythmCount",
-    version="1.0",
+    version="1.1",
     author="Nina Velikajne, Miha Moškon",
     author_email="nv6920@student.uni-lj.si, miha.moskon@fri.uni-lj.si",
     description="Python package to analyse the rhythmicity in count data",
