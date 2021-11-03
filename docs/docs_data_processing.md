@@ -10,7 +10,7 @@ Returns:
 * `df (DataFrame)` - Cleaned dataframe.
 
 ## cosinor_generate_independents(X, n_components, period=24)
-Executes the cosinor method on the given data. <br>
+Transform the independent variable X using a cosinor model with a given number of components and a given period. <br>
 Parameters:
 * `X (Series)` - Independent variable (time).
 * `n_components (int)` - Number of components.
@@ -21,7 +21,7 @@ Returns:
 * `X_fit_test (ndarray)` - X_test values after applying the cosinor method.
 * `X_fit_eval_params (ndarray)` - X_test values after applying the cosinor method. Used for estimation of rhythm parameters.
 
-## fit_to_model(df, n_components, coun, period, maxiter, maxfun, method, disp)
+## fit_to_model(df, n_components, count_model, period, maxiter, maxfun, method, disp)
 The function calls the `cosinor_generate_independents()` function and builds a regression model. <br>
 Parameters:
 * `df (DataFrame)` - Dataframe should have two columns: X and Y.
