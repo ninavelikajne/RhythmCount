@@ -15,11 +15,12 @@ Parameters:
 * `X (Series)` - Independent variable (time).
 * `n_components (int)` - Number of components.
 * `period (int, default=24)` - Length of period. <br>
+
 Returns:
-* `X_fit (ndarray)` - X values after applying the cosinor method.
-* `X_test (ndarray)`- Generated signal that resembles X variables.
-* `X_fit_test (ndarray)` - X_test values after applying the cosinor method.
-* `X_fit_eval_params (ndarray)` - X_test values after applying the cosinor method. Used for estimation of rhythm parameters.
+* `X_fit (ndarray)` - X values after applying the cosinor transformation with a given number of components.
+* `X_test (ndarray)` - evenly spaced time variable with an increased sampling frequency (can be used for plotting the results or the estimation of rhythmicity parameters).
+* `X_fit_test (ndarray)` - X_test values after applying the cosinor method. Used for plotting the results with a higher resolution.
+* `X_fit_eval_params (ndarray)` - X_test values after applying the cosinor method. Used for the estimation of the rhythmicity parameters.
 
 ## fit_to_model(df, n_components, count_model, period, maxiter, maxfun, method, disp)
 The function calls the `cosinor_generate_independents()` function and builds a regression model. <br>
@@ -32,6 +33,7 @@ Parameters:
 * `maxfun (int)` - Parameter used to build a model. Maximum number of function evaluations that will be performed.
 * `period (int)` - Parameter used to set the period.
 * `disp (int)` - Set to True to print convergence messages. <br>
+
 Returns:
 * `results (ResultsWrapper)` - Fitted model from statsmodels.
 * `df_result (DataFrame)` - Calculated statistics and other results. Columns: `'count_model', 'n_components', 'amplitude', 'mesor', 'peaks', 'heights', 'llr_pvalue', 'RSS', 'AIC', 'BIC', 'log_likelihood', 'logs', 'mean(est)', 'Y(est)', 'X_test', 'Y_test'`.
@@ -51,7 +53,6 @@ Parameters:
 * `disp (int)` - Set to True to print convergence messages.
 * `plot_models (bool, default=True)` - Plot built models or not.
 * `save_file_to (string, default='models.pdf')` - File name to save the plot. Will be saved in the results directory. If the directory does not exist, one will be created. <br>
-
 
 Returns:
 * `df_results (DataFrame)` - Results and other information of all built models. Columns: `'count_model', 'n_components', 'amplitude', 'mesor', 'peaks', 'heights', 'llr_pvalue', 'RSS', 'AIC', 'BIC', 'log_likelihood', 'logs', 'mean(est)', 'Y(est)', 'X_test', 'Y_test'`.
