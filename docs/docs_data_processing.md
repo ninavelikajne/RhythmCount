@@ -18,7 +18,7 @@ Parameters:
 
 Returns:
 * `X_fit (ndarray)` - X values after applying the cosinor transformation with a given number of components.
-* `X_test (ndarray)` - evenly spaced time variable with an increased sampling frequency (can be used for plotting the results or the estimation of rhythmicity parameters).
+* `X_test (ndarray)` - evenly spaced time variable with an increased sampling frequency. Can be used for plotting the results or the estimation of rhythmicity parameters.
 * `X_fit_test (ndarray)` - X_test values after applying the cosinor method. Used for plotting the results with a higher resolution.
 * `X_fit_eval_params (ndarray)` - X_test values after applying the cosinor method. Used for the estimation of the rhythmicity parameters.
 
