@@ -140,6 +140,9 @@ def fit_to_model(df, n_components, count_model, period, maxiter, maxfun, method,
 
     rhythm_params = evaluate_rhythm_params(X_test, Y_eval_params)
     df_result = calculate_statistics(Y, Y_fit, n_components, results, model, count_model, rhythm_params)
+    df_result.update({'data_mean': np.mean(Y)})
+    df_result.update({'data_std': np.std(Y)})
+    df_result.update({'X_test': X_test})
     df_result.update({'X_test': X_test})
     df_result.update({'Y_test': Y_test})
 
@@ -203,6 +206,11 @@ def calculate_statistics(Y, Y_fit, n_components, results, model, count_model, rh
     # BIC
     bic = results.bic
 
+    # resid
+    resid=results.resid
+    resid_mean=np.mean(resid)
+    resid_std=np.std(resid)
+
     # llf for each observation
     logs = model.loglikeobs(results.params)
 
@@ -210,7 +218,10 @@ def calculate_statistics(Y, Y_fit, n_components, results, model, count_model, rh
             'amplitude': rhythm_param['amplitude'],
             'mesor': rhythm_param['mesor'], 'peaks': rhythm_param['locs'], 'heights': rhythm_param['heights'], 'llr_pvalue': p,
             'RSS': RSS, 'AIC': aic, 'BIC': bic,
-            'log_likelihood': results.llf, 'logs': logs, 'mean(est)': Y_fit.mean(), 'Y(est)': Y_fit}
+            'log_likelihood': results.llf, 'logs': logs,
+            'resid': resid, 'resid_mean':resid_mean,'resid_std':resid_std,
+            'prsquared': results.prsquared,
+            'est_mean': Y_fit.mean(), 'est_std': Y_fit.std(),'Y_est': Y_fit}
 
 
 def get_best_n_components(df_results, test, count_model=None):

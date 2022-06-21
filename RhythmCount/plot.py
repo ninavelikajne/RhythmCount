@@ -83,7 +83,7 @@ def plot_confidence_intervals(df, count_model, n_components, title='', repetitio
         else:
             Y_test_CI = res2.predict(X_fit_test)
 
-        ax.plot(df_result['X_test'], Y_test_CI, color='brown', alpha=0.05, linewidth=0.1)
+        ax.plot(df_result['X_test'], Y_test_CI, color='brown', alpha=0.03, linewidth=0.1)
 
     subplot_model(df['X'], Y, df_result['X_test'], df_result['Y_test'], ax, title=title, plot_model=False,
                   period=period)
