@@ -37,7 +37,7 @@ def fit_to_models(df, count_models=count_models, n_components=n_components, maxi
 
     if plot_models:
         rows, cols = hlp.get_factors(len(count_models))
-        fig = plt.figure(figsize=(8 * cols, 8 * rows))
+        fig = plt.figure(figsize=(8 * cols, 9 * rows))
 
     i = 0
     for count_model in count_models:
@@ -65,7 +65,7 @@ def fit_to_models(df, count_models=count_models, n_components=n_components, maxi
     if plot_models:
         ax_list = fig.axes
         for ax in ax_list:
-            ax.legend(loc='upper left', fontsize='medium')
+            ax.legend(loc='upper left', fontsize='small')
         fig.tight_layout()
         plt.show()
 
@@ -378,7 +378,7 @@ def compare_by_component(df, component, n_components, count_models, ax_indices, 
     df_results = pd.DataFrame()
 
     names = df[component].unique()
-    fig = plt.figure(figsize=(8 * cols, 8 * rows))
+    fig = plt.figure(figsize=(10 * cols, 8 * rows))
     i = 0
     for name in names:
 
@@ -430,7 +430,7 @@ def compare_by_component(df, component, n_components, count_models, ax_indices, 
         line = Line2D([0], [0], label='CIs', color='brown')
         handles, labels = ax.get_legend_handles_labels()
         handles.extend([line])
-        ax.legend(loc='upper left', fontsize='large', handles=handles)
+        ax.legend(loc='upper left', fontsize='small', handles=handles)
         ax.set_title(ax_titles[i])
         i = i + 1
     fig.tight_layout()
