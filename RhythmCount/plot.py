@@ -31,7 +31,7 @@ def plot_model(df, count_model, n_components, title='', plot_CIs=True, repetitio
         line = Line2D([0], [0], label='CIs', color='brown')
         handles, labels = ax.get_legend_handles_labels()
         handles.extend([line])
-        ax.legend(loc='upper left', fontsize='large', handles=handles)
+        ax.legend(loc='upper left', fontsize='small', handles=handles)
     fig.tight_layout()
     plt.show()
 
@@ -94,7 +94,7 @@ def plot_confidence_intervals(df, count_model, n_components, title='', repetitio
         line = Line2D([0], [0], label='CIs', color='brown')
         handles, labels = ax.get_legend_handles_labels()
         handles.extend([line])
-        ax.legend(loc='upper left', fontsize='large', handles=handles)
+        ax.legend(loc='upper left', fontsize='small', handles=handles)
     fig.tight_layout()
     plt.show()
 
