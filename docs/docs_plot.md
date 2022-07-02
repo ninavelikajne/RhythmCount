@@ -9,9 +9,9 @@ Parameters:
 * `hour_intervals (int)` - Frequency of labels (dates) on x-axis.
 * `save_file_to (string, default='raw.pdf')` - File name to save the plot. Will be saved in the results directory. If the directory does not exist, one will be created.
 
-## plot_model(df, count_model, n_components, title='', plot_CIs=True, repetitions=20, save_file_to='model.pdf', maxiter=5000, maxfun=5000, method='nm', period=24)
+## plot_model(df, count_model, n_components, title='', plot_CIs=True, repetitions=20, save_file_to='model.pdf', maxiter=5000, maxfun=5000, method='nm', period=24, alpha=0.4)
 Builds and plots specific model with given number of components. <br>
-Parameters:
+Parameters: , alpha=0.4
 * `df (DataFrame)` - Dataframe should have two columns: X and Y.
 * `count_model (string)` - Type of regression model. All possible `'poisson', 'gen_poisson', 'zero_poisson', 'nb', 'zero_nb'`
 * `n_components (int)` - Number of components.
@@ -22,13 +22,14 @@ Parameters:
 * `method (string)` - Optimization method used to build a model. More in the [statsmodels](https://www.statsmodels.org/stable/generated/statsmodels.discrete.discrete_model.Logit.fit.html) library.
 * `maxiter (int)` - Parameter used to build a model. The maximum number of iterations that will be performed.
 * `maxfun (int)` - Parameter used to build a model. Maximum number of function evaluations that will be performed.
-* `period (int)` - Parameter used to set the period. <br>
+* `period (int)` - Parameter used to set the period. 
+* `alpha (double)` - Parameter to set alpha transparency of confidence intervals on figure. <br>
 
 Returns:
 * `CIs (DataFrame)` - Confidence intervals of model's parameters. Returned only, if plot_CIs is set to true.
 
 
-## plot_confidence_intervals(df, count_model, n_components, title=''', repetitions=20, maxiter=5000, maxfun=5000, period=24, method='nm', save_file_to='CIs.pdf')
+## plot_confidence_intervals(df, count_model, n_components, title=''', repetitions=20, maxiter=5000, maxfun=5000, period=24, method='nm', alpha=0.4, save_file_to='CIs.pdf')
 Calculates and plots confidence intervals of a specific model with given number of components. <br>
 Parameters:
 * `df (DataFrame)` - Dataframe should have two columns: X and Y.
@@ -40,7 +41,8 @@ Parameters:
 * `maxiter (int)` - Parameter used to build a model. The maximum number of iterations that will be performed.
 * `maxfun (int)` - Parameter used to build a model. Maximum number of function evaluations that will be performed.
 * `period (int)` - Parameter used to set the period.
-* `repetitions (int, default=20)` - Number of repetitions for the confidence interval calculation (the bootstrap method). <br>
+* `repetitions (int, default=20)` - Number of repetitions for the confidence interval calculation (the bootstrap method). 
+* `alpha (double)` - Parameter to set alpha transparency of confidence intervals on figure.<br>
 
 Returns:
 * `CIs (DataFrame)` - Confidence intervals of model's parameters.

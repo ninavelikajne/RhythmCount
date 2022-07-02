@@ -113,7 +113,7 @@ Parameters:
 Returns:
 * `CIs (dict)` - Confidence intervals of the rhythm parameters. Columns: `'amplitude_CIs', 'mesor_CIs', 'peaks_CIs', 'heights_CIs'`.
 
-## compare_by_component(df, component, n_components, models_type, ax_indices, ax_titles, rows=1, cols=1,labels=None, eval_order=True, maxiter=5000, maxfun=5000, method='nm', period=24, precision_rate=2, repetitions=20, test='Vuong', save_file_to='comparison.pdf')
+## compare_by_component(df, component, n_components, models_type, ax_indices, ax_titles, rows=1, cols=1,labels=None, eval_order=True, maxiter=5000, maxfun=5000, method='nm', period=24, precision_rate=2, repetitions=20, test='Vuong', alpha=0.4, save_file_to='comparison.pdf')
 Compares the data for unique values in the column named as the `component` parameter. For each unique value in the column, a new model is built and evaluated. <br>
 
 Parameters:
@@ -134,6 +134,7 @@ Parameters:
 * `rows (int, default=1)` -  Defines rows of plot grid.
 * `cols (int, default=1)` -  Defines columns of plot grid.
 * `labels ([string], default=None)` - Labels for the plotted model. If not set, the unique value of column is used.
+* `alpha (double)` - Parameter to set alpha transparency of confidence intervals on figure.
 * `save_file_to (string, default='comparison.pdf')` - File name to save the plot. Will be saved in the results directory. If the directory does not exist, one will be created. <br>
 
 Returns:

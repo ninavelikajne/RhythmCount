@@ -374,7 +374,7 @@ def calculate_confidence_intervals_parameters(df, n_components, count_model, all
 
 def compare_by_component(df, component, n_components, count_models, ax_indices, ax_titles, rows=1, cols=1, labels=None,
                          eval_order=True, maxiter=5000, maxfun=5000, method='nm', period=24, precision_rate=2,
-                         repetitions=20, test='Vuong', save_file_to='comparison.pdf'):
+                         repetitions=20, test='Vuong', alpha=0.4, save_file_to='comparison.pdf'):
     df_results = pd.DataFrame()
 
     names = df[component].unique()
@@ -406,7 +406,7 @@ def compare_by_component(df, component, n_components, count_models, ax_indices, 
         ax = plt.subplot(rows, cols, ax_indices[i])
 
         CIs = plot.subplot_confidence_intervals(df_name, n_component, count_model, ax, repetitions=repetitions,
-                                                maxiter=maxiter, maxfun=maxfun, period=period, method=method)
+                                                maxiter=maxiter, maxfun=maxfun, period=period, method=method,alpha=alpha)
         if labels:
             plot.subplot_model(df_name['X'], df_name['Y'], best['X_test'], best['Y_test'], ax, color=colors[i],
                                plot_measurements_with_color=colors[i], fit_label=labels[name],

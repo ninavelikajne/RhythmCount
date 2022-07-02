@@ -11,17 +11,17 @@ import matplotlib.dates as md
 
 
 def plot_model(df, count_model, n_components, title='', plot_CIs=True, repetitions=20, save_file_to='model.pdf',
-               maxiter=5000, maxfun=5000, method='nm', period=24):
+               maxiter=5000, maxfun=5000, method='nm', period=24, alpha=0.4):
     rows, cols = hlp.get_factors(1)
     fig = plt.figure(figsize=(8 * cols, 8 * rows))
 
     results, df_result, _ = dproc.fit_to_model(df, n_components, count_model, period, maxiter, maxfun, method, 0)
 
     # plot
-    ax = ax = plt.subplot(rows, cols, 1)
+    ax = plt.subplot(rows, cols, 1)
     if plot_CIs:
         CIs = subplot_confidence_intervals(df, n_components, count_model, ax, repetitions=repetitions, maxiter=maxiter,
-                                           maxfun=maxfun, period=period, method=method)
+                                           maxfun=maxfun, period=period, method=method,alpha=alpha)
 
     subplot_model(df['X'], df['Y'], df_result['X_test'], df_result['Y_test'], ax, color='blue', title=title,
                   fit_label='fitted curve', period=period)
@@ -47,7 +47,7 @@ def plot_model(df, count_model, n_components, title='', plot_CIs=True, repetitio
 
 
 def plot_confidence_intervals(df, count_model, n_components, title='', repetitions=20, maxiter=5000, maxfun=5000,
-                              period=24, method='nm', save_file_to='CIs.pdf'):
+                              period=24, method='nm', alpha=0.4, save_file_to='CIs.pdf'):
     rows, cols = hlp.get_factors(1)
     fig = plt.figure(figsize=(8 * cols, 8 * rows))
 
@@ -83,7 +83,7 @@ def plot_confidence_intervals(df, count_model, n_components, title='', repetitio
         else:
             Y_test_CI = res2.predict(X_fit_test)
 
-        ax.plot(df_result['X_test'], Y_test_CI, color='brown', alpha=0.03, linewidth=0.1)
+        ax.plot(df_result['X_test'], Y_test_CI, color='brown', alpha=alpha, linewidth=0.1)
 
     subplot_model(df['X'], Y, df_result['X_test'], df_result['Y_test'], ax, title=title, plot_model=False,
                   period=period)
@@ -109,7 +109,7 @@ def plot_confidence_intervals(df, count_model, n_components, title='', repetitio
 
 
 def subplot_confidence_intervals(df, n_components, count_model, ax, repetitions=20, maxiter=5000, maxfun=5000, period=24,
-                                 method='nm'):
+                                 method='nm',alpha=0.4):
     results, df_result, X_fit_test = dproc.fit_to_model(df, n_components, count_model, period, maxiter, maxfun, method,
                                                         0)
 
@@ -140,9 +140,9 @@ def subplot_confidence_intervals(df, n_components, count_model, ax, repetitions=
         else:
             Y_test_CI = res2.predict(X_fit_test)
         if i == 0:
-            ax.plot(df_result['X_test'], Y_test_CI, color='brown', alpha=0.03, linewidth=0.1)
+            ax.plot(df_result['X_test'], Y_test_CI, color='brown', alpha=alpha, linewidth=0.1)
         else:
-            ax.plot(df_result['X_test'], Y_test_CI, color='brown', alpha=0.03, linewidth=0.1)
+            ax.plot(df_result['X_test'], Y_test_CI, color='brown', alpha=alpha, linewidth=0.1)
 
     return CIs
 
