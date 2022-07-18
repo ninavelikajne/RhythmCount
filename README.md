@@ -30,3 +30,10 @@ The [example/results](example/results) folder contains plots and .csv files gene
 
 # Documentation
 The documentation can be found in the [docs](docs/README.md) folder.
+
+# How to cite
+If you are using RhythmCount for your scientific work, please cite:
+
+Moškon M., Velikajne N., "RhythmCount: A Python package to analyse the rhythmicity in count data." Journal of Computational Science 63.101758 (2022).
+
+The paper is available at https://doi.org/10.1016/j.jocs.2022.101758.
